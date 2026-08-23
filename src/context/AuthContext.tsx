@@ -35,7 +35,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [toast, setToast] = useState<ToastState | null>(null);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('careerpath_theme');
+    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  });
   const [isSupabaseOnline, setIsSupabaseOnline] = useState<boolean>(isSupabaseConfigured());
 
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
@@ -47,19 +50,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToast(null);
   }, []);
 
+  const applyThemeToDOM = (themeName: 'dark' | 'light') => {
+    if (themeName === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  };
+
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
-    if (nextTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    localStorage.setItem('careerpath_theme', nextTheme);
+    applyThemeToDOM(nextTheme);
   };
 
   // Initial Auth session verification & Supabase auth listener
   useEffect(() => {
-    document.documentElement.classList.add('dark');
+    applyThemeToDOM(theme);
     let isMounted = true;
 
     const initializeAuth = async () => {
