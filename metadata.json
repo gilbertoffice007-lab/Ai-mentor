@@ -1,0 +1,6 @@
+{
+  "name": "CareerPath AI Mentor",
+  "description": "AI-powered 24/7 career mentor for students guiding career discovery, personalized roadmaps, daily tasks, real projects, placement prep, internships, and job matching.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

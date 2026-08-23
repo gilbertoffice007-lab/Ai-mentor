@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: careerpath_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=CareerPath AI Mentor Backend
+      - APP_ENV=production
+      - DEBUG=False
+      - PORT=8000
+      - HOST=0.0.0.0
+      - DATABASE_URL=sqlite+aiosqlite:///./careerpath.db
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: careerpath_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
