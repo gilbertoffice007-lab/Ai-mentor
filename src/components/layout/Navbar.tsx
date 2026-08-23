@@ -41,15 +41,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-[#0A0C10]/95 backdrop-blur-xl border-b border-slate-800">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
-        {/* Left: Brand Logo & Hamburger (Auth & Public) */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+    <header className="sticky top-0 z-30 w-full bg-[#0A0C10]/95 backdrop-blur-xl border-b border-slate-800 transition-colors">
+      <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+        {/* Left: Brand Logo in Left Corner & Mobile Sidebar Trigger */}
+        <div className="flex items-center gap-3 shrink-0">
           {!isPublic && onToggleSidebar && (
             <button
               id="btn-toggle-sidebar"
               onClick={onToggleSidebar}
-              className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#11141D] border border-slate-800 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#11141D] border border-slate-800 transition-colors cursor-pointer"
               aria-label="Toggle sidebar navigation"
             >
               <Menu className="w-5 h-5" />
@@ -60,29 +60,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="btn-toggle-public-menu"
               onClick={() => setPublicMenuOpen(!publicMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#11141D] border border-slate-800 transition-colors"
+              className="md:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#11141D] border border-slate-800 transition-colors cursor-pointer"
               aria-label="Toggle public navigation menu"
             >
               {publicMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           )}
 
+          {/* Logo Placed Properly in Left Corner */}
           <div
             id="brand-logo-button"
             onClick={() => onNavigate(user ? '/dashboard' : '/')}
-            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group"
+            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group select-none"
           >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform font-bold shrink-0">
-              <Compass className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform font-bold shrink-0">
+              <Compass className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm sm:text-base tracking-tight text-white">CareerPath</span>
-                <span className="hidden xs:inline-block px-1.5 sm:px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[9px] sm:text-[10px] font-bold uppercase rounded border border-indigo-500/20">
-                  AI Active
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-extrabold text-base sm:text-lg tracking-tight text-white leading-none">
+                  CareerPath
+                </span>
+                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[9px] sm:text-[10px] font-bold uppercase rounded border border-indigo-500/20">
+                  AI
                 </span>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-slate-500 hidden md:block">AI Mentor for Student Careers</p>
+              <p className="text-[10px] text-slate-500 hidden sm:block font-medium mt-0.5 leading-none">
+                AI Mentor for Student Careers
+              </p>
             </div>
           </div>
         </div>
@@ -126,30 +131,31 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
 
         {/* Right Action buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* 3D Holo Explore shortcut - Shown ONLY in public/start of app */}
           {isPublic && (
             <button
               id="btn-nav-explore-3d"
               onClick={() => onNavigate('/explore')}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#11141D] hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-800 hover:border-indigo-500/30 transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#11141D] hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-800 hover:border-indigo-500/30 transition-all cursor-pointer"
             >
               <Orbit className="w-3.5 h-3.5 text-cyan-400" />
               <span>3D Orbit</span>
             </button>
           )}
 
-          {/* Theme switcher */}
+          {/* Theme switcher toggle button */}
           <button
             id="btn-toggle-theme"
             onClick={toggleTheme}
-            className="p-2 rounded-xl bg-[#11141D] border border-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
-            title="Toggle color theme"
+            className="p-2 rounded-xl bg-[#11141D] border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer hover:border-indigo-500/40"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Toggle theme"
           >
             {theme === 'dark' ? (
               <Sun className="w-4 h-4 text-amber-300" />
             ) : (
-              <Moon className="w-4 h-4 text-indigo-400" />
+              <Moon className="w-4 h-4 text-indigo-600" />
             )}
           </button>
 
@@ -159,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div
                 id="user-streak-pill"
                 onClick={() => onNavigate('/analytics')}
-                className="cursor-pointer flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#11141D] border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/10 transition-all"
+                className="cursor-pointer flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#11141D] border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/10 transition-all"
                 title={`${user.currentStreakDays} day study streak!`}
               >
                 <Flame className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
@@ -321,7 +327,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onNavigate('/explore');
               setPublicMenuOpen(false);
             }}
-            className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 text-left text-xs font-semibold text-slate-200 flex items-center justify-between"
+            className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 text-left text-xs font-semibold text-slate-200 flex items-center justify-between cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <Orbit className="w-4 h-4 text-cyan-400" />
@@ -335,7 +341,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onNavigate('/personality-test');
               setPublicMenuOpen(false);
             }}
-            className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 text-left text-xs font-semibold text-slate-200 flex items-center justify-between"
+            className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 text-left text-xs font-semibold text-slate-200 flex items-center justify-between cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <Brain className="w-4 h-4 text-indigo-400" />
@@ -350,7 +356,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onNavigate('/auth');
                 setPublicMenuOpen(false);
               }}
-              className="flex-1 py-2.5 rounded-xl bg-slate-800 text-center text-xs font-semibold text-slate-300"
+              className="flex-1 py-2.5 rounded-xl bg-slate-800 text-center text-xs font-semibold text-slate-300 cursor-pointer"
             >
               Sign In
             </button>
@@ -359,7 +365,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onNavigate('/auth');
                 setPublicMenuOpen(false);
               }}
-              className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-center text-xs font-bold text-white shadow-lg shadow-indigo-500/30"
+              className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-center text-xs font-bold text-white shadow-lg shadow-indigo-500/30 cursor-pointer"
             >
               Create Account
             </button>
