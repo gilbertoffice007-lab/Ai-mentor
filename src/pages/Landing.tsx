@@ -162,7 +162,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
           {DOMAINS.slice(0, 6).map((domain) => (
             <div
               key={domain.id}
-              onClick={() => onNavigate(`/explore/${domain.id}`)}
+              onClick={() => onNavigate('/explore')}
               className="cursor-pointer p-6 rounded-3xl bg-slate-900/70 border border-slate-800 hover:border-cyan-500/40 hover:bg-slate-900/95 transition-all group"
             >
               <div className="flex items-center justify-between">

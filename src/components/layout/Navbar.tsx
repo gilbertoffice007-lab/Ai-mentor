@@ -15,7 +15,8 @@ import {
   X,
   Layers,
   Brain,
-  Milestone
+  Milestone,
+  Orbit
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -86,17 +87,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Center Nav: Landing & Public view */}
+        {/* Center Nav: Landing & Public view only */}
         {isPublic ? (
           <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider text-slate-400">
             <button
               id="nav-link-explore"
               onClick={() => onNavigate('/explore')}
-              className={`hover:text-white transition-colors cursor-pointer ${
+              className={`hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer ${
                 currentRoute === '/explore' ? 'text-indigo-400 font-bold' : ''
               }`}
             >
-              Explore 12 Domains
+              <Orbit className="w-3.5 h-3.5 text-cyan-400" />
+              <span>3D Holo Orbit</span>
             </button>
             <button
               id="nav-link-test"
@@ -125,16 +127,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Action buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2.5">
-          {/* 3D Explore Domain shortcut */}
-          <button
-            id="btn-nav-explore-3d"
-            onClick={() => onNavigate('/explore')}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#11141D] hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-800 hover:border-indigo-500/30 transition-all cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden md:inline">3D Explorer</span>
-            <span className="md:hidden">3D</span>
-          </button>
+          {/* 3D Holo Explore shortcut - Shown ONLY in public/start of app */}
+          {isPublic && (
+            <button
+              id="btn-nav-explore-3d"
+              onClick={() => onNavigate('/explore')}
+              className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#11141D] hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-800 hover:border-indigo-500/30 transition-all cursor-pointer"
+            >
+              <Orbit className="w-3.5 h-3.5 text-cyan-400" />
+              <span>3D Orbit</span>
+            </button>
+          )}
 
           {/* Theme switcher */}
           <button
@@ -321,10 +324,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 text-left text-xs font-semibold text-slate-200 flex items-center justify-between"
           >
             <div className="flex items-center gap-2.5">
-              <Compass className="w-4 h-4 text-cyan-400" />
-              <span>Explore 12 Domains & 3D Visualizer</span>
+              <Orbit className="w-4 h-4 text-cyan-400" />
+              <span>3D Holographic Orbit Explorer</span>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">3D</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">12 Fields</span>
           </button>
 
           <button

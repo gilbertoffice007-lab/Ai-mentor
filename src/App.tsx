@@ -45,7 +45,6 @@ const PROTECTED_ROUTES = [
 const AppContent: React.FC = () => {
   const { user, isLoading, toast, hideToast, showToast } = useAuth();
   const [currentRoute, setCurrentRoute] = useState<string>(user ? '/dashboard' : '/');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Sync route on auth state changes
@@ -95,8 +94,8 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // Determine if full-screen landing or auth
-  const isFullScreenPage = currentRoute === '/' || currentRoute === '/auth';
+  // Public/Starting Flow Pages (No Dashboard Sidebar)
+  const isPublicFlow = currentRoute === '/' || currentRoute === '/auth' || currentRoute === '/explore' || !user;
 
   const renderCurrentPage = () => {
     switch (currentRoute) {
@@ -149,13 +148,13 @@ const AppContent: React.FC = () => {
         currentRoute={currentRoute}
         onNavigate={handleNavigate}
         onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-        isPublic={isFullScreenPage || !user}
+        isPublic={isPublicFlow}
       />
 
       {/* Main Area with Sidebar */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar only shown on non-landing/auth pages when authenticated */}
-        {!isFullScreenPage && user && (
+        {/* Sidebar only shown for authenticated dashboard pages */}
+        {!isPublicFlow && user && (
           <Sidebar
             currentRoute={currentRoute}
             onNavigate={handleNavigate}
@@ -167,7 +166,7 @@ const AppContent: React.FC = () => {
         {/* Page Viewport */}
         <main
           className={`flex-1 min-w-0 overflow-y-auto transition-all duration-300 ${
-            !isFullScreenPage && user ? 'pb-24 lg:pb-10 lg:pl-64' : ''
+            !isPublicFlow && user ? 'pb-24 lg:pb-10 lg:pl-64' : ''
           }`}
         >
           {renderCurrentPage()}
@@ -175,7 +174,7 @@ const AppContent: React.FC = () => {
       </div>
 
       {/* Mobile Bottom Thumb Navigation */}
-      {!isFullScreenPage && user && (
+      {!isPublicFlow && user && (
         <MobileBottomNav
           currentRoute={currentRoute}
           onNavigate={handleNavigate}
@@ -184,7 +183,7 @@ const AppContent: React.FC = () => {
       )}
 
       {/* Omnipresent AI Floating Mentor Widget */}
-      {!isFullScreenPage && user && (
+      {!isPublicFlow && user && (
         <FloatingMentorWidget onNavigate={handleNavigate} />
       )}
 
