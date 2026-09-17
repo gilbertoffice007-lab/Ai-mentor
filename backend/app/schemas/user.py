@@ -19,10 +19,17 @@ class CareerRecommendationSchema(BaseModel):
     demandGrowth: str
     averageSalary: str
     keySkills: List[str]
+    whyMatches: Optional[List[str]] = None
+    typicalWorkActivities: Optional[List[str]] = None
+    recommendedLearningPath: Optional[List[str]] = None
 
 class PersonalityResultSchema(BaseModel):
     scores: RIASECScoreSchema
+    rawScores: Optional[RIASECScoreSchema] = None
     dominantCode: str
+    primaryInterest: Optional[str] = None
+    secondaryInterest: Optional[str] = None
+    tertiaryInterest: Optional[str] = None
     personalityTitle: str
     description: str
     strengths: List[str]
@@ -30,6 +37,7 @@ class PersonalityResultSchema(BaseModel):
     recommendedDomain: str
     recommendedField: str
     recommendations: List[CareerRecommendationSchema]
+    completedAt: Optional[str] = None
 
 class NotificationSchema(BaseModel):
     id: str

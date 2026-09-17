@@ -32,8 +32,8 @@ export const ExploreDomains: React.FC<ExploreDomainsProps> = ({ onNavigate }) =>
       showToast(`Selected '${careerTitle}' as your active career goal! 🚀`, 'success');
       onNavigate('/roadmap');
     } else {
-      showToast(`Selected '${careerTitle}'! Sign in or take the RIASEC test to personalize your roadmap.`, 'info');
-      onNavigate('/personality-test');
+      showToast(`Selected '${careerTitle}'! Please sign in or create an account first, then take the RIASEC test to personalize your roadmap.`, 'info');
+      onNavigate('/auth');
     }
   };
 

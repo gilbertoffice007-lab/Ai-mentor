@@ -66,7 +66,7 @@ export const Analytics: React.FC = () => {
             <Clock className="w-3.5 h-3.5 text-cyan-400" />
             Total Study Hours
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-white">{user?.totalHoursLearned || 148} hrs</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-white">{user?.totalHoursLearned ?? 0} hrs</p>
           <span className="text-[10px] text-emerald-400 font-semibold">+18.5 hrs this week</span>
         </div>
 
@@ -75,7 +75,7 @@ export const Analytics: React.FC = () => {
             <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
             Study Streak
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">{user?.currentStreakDays || 14} Days</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">{user?.currentStreakDays ?? 0} Days</p>
           <span className="text-[10px] text-slate-400 font-medium">Personal Record: 21 Days</span>
         </div>
 
@@ -93,7 +93,7 @@ export const Analytics: React.FC = () => {
             <Award className="w-3.5 h-3.5 text-indigo-400" />
             Roadmap Velocity
           </span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-cyan-300">{user?.overallProgress || 72}%</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-cyan-300">{user?.overallProgress ?? 0}%</p>
           <span className="text-[10px] text-emerald-400 font-semibold">Ahead of Semester Plan</span>
         </div>
       </div>

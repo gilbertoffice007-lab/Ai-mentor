@@ -23,13 +23,13 @@ export const AIMentorRoom: React.FC = () => {
     {
       id: 'm-1',
       sender: 'ai',
-      text: `Welcome to your dedicated **AI Career Mentor Room**, ${user?.fullName || 'Gilbert'}! 🎯
+      text: `Welcome to your dedicated **AI Career Mentor Room**, ${user?.fullName || 'there'}! 🎯
 
 I am synchronized with your live academic status:
-* **Target Career:** ${user?.careerTitle || 'Full Stack Developer'}
-* **Current Stage:** Stage ${user?.currentStage || 2} (72% Progress)
-* **Personality Profile:** Holland RIASEC \`${user?.riasecResult?.dominantCode || 'I-E-S'}\`
-* **Study Velocity:** ${user?.totalHoursLearned || 148} hrs learned with a ${user?.currentStreakDays || 14}-day streak.
+* **Target Career:** ${user?.careerTitle || 'Not selected yet — pick one from your Career Result page'}
+* **Current Stage:** Stage ${user?.currentStage ?? 1} (${user?.overallProgress ?? 0}% Progress)
+* **Personality Profile:** Holland RIASEC \`${user?.riasecResult?.dominantCode || 'assessment pending'}\`
+* **Study Velocity:** ${user?.totalHoursLearned ?? 0} hrs learned with a ${user?.currentStreakDays ?? 0}-day streak.
 
 How would you like to level up today?`,
       timestamp: 'Just now',
@@ -43,7 +43,25 @@ How would you like to level up today?`,
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [geminiKey, setGeminiKey] = useState(() =>
+    typeof localStorage !== 'undefined' ? localStorage.getItem('careerpath_gemini_key') || '' : ''
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
+  const envKeyPresent =
+    typeof import.meta !== 'undefined' && Boolean((import.meta as any)?.env?.VITE_GEMINI_API_KEY);
+  const liveAi = envKeyPresent || geminiKey.trim().length > 0;
+
+  const handleSaveKey = () => {
+    try {
+      if (geminiKey.trim()) {
+        localStorage.setItem('careerpath_gemini_key', geminiKey.trim());
+      } else {
+        localStorage.removeItem('careerpath_gemini_key');
+      }
+    } catch {
+      /* ignore */
+    }
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -94,15 +112,50 @@ How would you like to level up today?`,
       {/* Header */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400">
             <Bot className="w-4 h-4" />
-            24/7 Cognitive Career Mentorship (Gemini 3.7 Flash)
+            <span>24/7 Cognitive Career Mentorship</span>
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-bold normal-case tracking-normal border ${
+                liveAi
+                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+              }`}
+            >
+              {liveAi ? '● Live Gemini AI' : '● Local Guide Mode'}
+            </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">AI Mentor Command Room</h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
             Deep technical assistance, mock interview simulations, architectural reviews, and schedule guidance.
           </p>
         </div>
+        {!envKeyPresent && (
+          <div className="w-full md:w-80 rounded-2xl bg-slate-900 border border-slate-800 p-3.5 space-y-2">
+            <label className="block text-[11px] font-semibold text-slate-300">
+              Gemini API key <span className="text-slate-500 font-normal">(optional, unlocks live AI)</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="password"
+                value={geminiKey}
+                onChange={(e) => setGeminiKey(e.target.value)}
+                placeholder="Paste AIza… key"
+                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button
+                type="button"
+                onClick={handleSaveKey}
+                className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors cursor-pointer"
+              >
+                Save
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-500 leading-snug">
+              Free key from Google AI Studio. Stored only in this browser, never sent anywhere except Google.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Main Container */}
@@ -126,15 +179,15 @@ How would you like to level up today?`,
             <div className="space-y-3 pt-3 border-t border-slate-800 text-xs">
               <div className="flex justify-between text-slate-300">
                 <span className="text-slate-400">Target Career:</span>
-                <span className="font-semibold text-white">{user?.careerTitle || 'Full Stack'}</span>
+                <span className="font-semibold text-white">{user?.careerTitle || 'Not set'}</span>
               </div>
               <div className="flex justify-between text-slate-300">
                 <span className="text-slate-400">Active Stage:</span>
-                <span className="font-semibold text-cyan-300">Stage {user?.currentStage || 2} ({user?.overallProgress || 72}%)</span>
+                <span className="font-semibold text-cyan-300">Stage {user?.currentStage || 1} ({user?.overallProgress ?? 0}%)</span>
               </div>
               <div className="flex justify-between text-slate-300">
                 <span className="text-slate-400">RIASEC Code:</span>
-                <span className="font-semibold text-indigo-300">{user?.riasecResult?.dominantCode || 'I-E-S'}</span>
+                <span className="font-semibold text-indigo-300">{user?.riasecResult?.dominantCode || 'Pending'}</span>
               </div>
               <div className="flex justify-between text-slate-300">
                 <span className="text-slate-400">Daily Study Time:</span>

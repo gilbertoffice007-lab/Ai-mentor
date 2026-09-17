@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-[#0A0C10]/95 backdrop-blur-xl border-b border-slate-800 transition-colors">
+    <header className="sticky top-0 z-30 w-full bg-[#0A0C10]/95 backdrop-blur-xl border-b border-slate-800">
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         {/* Left: Brand Logo in Left Corner & Mobile Sidebar Trigger */}
         <div className="flex items-center gap-3 shrink-0">
@@ -82,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   CareerPath
                 </span>
                 <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[9px] sm:text-[10px] font-bold uppercase rounded border border-indigo-500/20">
-                  AI
+                  AI Active
                 </span>
               </div>
               <p className="text-[10px] text-slate-500 hidden sm:block font-medium mt-0.5 leading-none">
@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               id="nav-link-test"
-              onClick={() => onNavigate('/personality-test')}
+              onClick={() => onNavigate(user ? '/personality-test' : '/auth')}
               className={`hover:text-white transition-colors flex items-center gap-1 cursor-pointer ${
                 currentRoute === '/personality-test' ? 'text-indigo-400 font-bold' : ''
               }`}
@@ -125,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
             <span className="text-slate-700">•</span>
             <span className="text-emerald-400 font-semibold text-xs whitespace-nowrap">
-              Stage {user?.currentStage || 2} ({user?.overallProgress || 72}%)
+              Stage {user?.currentStage || 1} ({user?.overallProgress ?? 0}%)
             </span>
           </div>
         )}
@@ -144,18 +144,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Theme switcher toggle button */}
+          {/* Theme switcher */}
           <button
             id="btn-toggle-theme"
             onClick={toggleTheme}
             className="p-2 rounded-xl bg-[#11141D] border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer hover:border-indigo-500/40"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle theme"
+            title="Toggle theme"
           >
             {theme === 'dark' ? (
               <Sun className="w-4 h-4 text-amber-300" />
             ) : (
-              <Moon className="w-4 h-4 text-indigo-600" />
+              <Moon className="w-4 h-4 text-indigo-400" />
             )}
           </button>
 
@@ -169,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title={`${user.currentStreakDays} day study streak!`}
               >
                 <Flame className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
-                <span className="hidden xs:inline">{user.currentStreakDays}d</span>
+                <span className="hidden min-[420px]:inline">{user.currentStreakDays}d</span>
                 <span className="hidden sm:inline">Streak</span>
               </div>
 
@@ -229,7 +228,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="flex items-center gap-2 p-1 rounded-xl bg-[#11141D] hover:bg-slate-800 text-white transition-all border border-slate-800 cursor-pointer"
                 >
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-sm shrink-0">
-                    {user.fullName
+                    {(user?.fullName || 'User')
                       .split(' ')
                       .map((n) => n[0])
                       .slice(0, 2)
@@ -237,17 +236,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </div>
                   <div className="text-left pr-2 hidden md:block">
                     <p className="text-xs font-semibold leading-tight text-white truncate max-w-[100px]">
-                      {user.fullName}
+                      {user?.fullName || 'User'}
                     </p>
-                    <p className="text-[10px] text-slate-500 leading-tight">Stage {user.currentStage || 2}</p>
+                    <p className="text-[10px] text-slate-500 leading-tight">Stage {user?.currentStage || 1}</p>
                   </div>
                 </button>
 
                 {showUserMenu && (
                   <div className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-60 max-w-xs rounded-3xl bg-[#11141D] border border-slate-800 shadow-2xl p-2 z-50 animate-fade-in text-xs">
                     <div className="px-3 py-2.5 border-b border-slate-800">
-                      <p className="font-semibold text-white truncate">{user.fullName}</p>
-                      <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                      <p className="font-semibold text-white truncate">{user?.fullName || 'User'}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{user?.email || 'user@example.com'}</p>
                     </div>
                     <div className="py-1.5 space-y-0.5">
                       <button
@@ -338,7 +337,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => {
-              onNavigate('/personality-test');
+              onNavigate(user ? '/personality-test' : '/auth');
               setPublicMenuOpen(false);
             }}
             className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 text-left text-xs font-semibold text-slate-200 flex items-center justify-between cursor-pointer"

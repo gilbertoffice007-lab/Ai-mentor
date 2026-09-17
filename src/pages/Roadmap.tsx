@@ -22,8 +22,8 @@ interface RoadmapProps {
 export const Roadmap: React.FC<RoadmapProps> = ({ onNavigate }) => {
   const { user, showToast } = useAuth();
   const [stages, setStages] = useState<RoadmapStage[]>([]);
-  const [expandedStage, setExpandedStage] = useState<number>(user?.currentStage || 2);
-  const [overallProgress, setOverallProgress] = useState(user?.overallProgress || 72);
+  const [expandedStage, setExpandedStage] = useState<number>(user?.currentStage || 1);
+  const [overallProgress, setOverallProgress] = useState(user?.overallProgress ?? 0);
 
   useEffect(() => {
     const loadRoadmap = async () => {
@@ -74,7 +74,7 @@ export const Roadmap: React.FC<RoadmapProps> = ({ onNavigate }) => {
         <div className="flex items-center gap-3 shrink-0">
           <div className="px-4 py-2.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-center">
             <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold block">Active Stage</span>
-            <p className="text-sm font-bold text-indigo-300">Stage {user?.currentStage || 2} Active</p>
+            <p className="text-sm font-bold text-indigo-300">Stage {user?.currentStage || 1} Active</p>
           </div>
           <button
             onClick={() => onNavigate('/tasks')}
@@ -103,7 +103,7 @@ export const Roadmap: React.FC<RoadmapProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 pt-2 text-center text-xs">
           {stages.map((st) => {
             const isCompleted = st.status === 'completed';
-            const isCurrent = st.stageNumber === (user?.currentStage || 2);
+            const isCurrent = st.stageNumber === (user?.currentStage || 1);
             return (
               <div
                 key={st.id}
@@ -128,7 +128,7 @@ export const Roadmap: React.FC<RoadmapProps> = ({ onNavigate }) => {
       <div className="space-y-4">
         {stages.map((st) => {
           const isExpanded = expandedStage === st.stageNumber;
-          const isCurrent = st.stageNumber === (user?.currentStage || 2);
+          const isCurrent = st.stageNumber === (user?.currentStage || 1);
           const isCompleted = st.status === 'completed';
 
           return (
@@ -139,7 +139,7 @@ export const Roadmap: React.FC<RoadmapProps> = ({ onNavigate }) => {
                   ? 'bg-[#11141D] border-indigo-500/50 shadow-xl'
                   : isCompleted
                   ? 'bg-[#11141D] border-slate-800'
-                  : 'bg-[#11141D]/70 border-slate-800/80 opacity-90'
+                  : 'bg-slate-800/40 border-slate-800/80'
               }`}
             >
               {/* Header */}

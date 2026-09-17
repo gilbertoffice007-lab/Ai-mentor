@@ -30,9 +30,9 @@ export const FloatingMentorWidget: React.FC<FloatingMentorWidgetProps> = ({ onNa
     {
       id: 'm-welcome',
       sender: 'ai',
-      text: `Hello ${user?.fullName || 'Gilbert'}! 👋 I am your **CareerPath AI Mentor** tracking your journey in **${
-        user?.careerTitle || 'Full Stack Development'
-      }** (Stage ${user?.currentStage || 2}).
+      text: `Hello ${user?.fullName || 'there'}! 👋 I am your **CareerPath AI Mentor** tracking your journey in **${
+        user?.careerTitle || 'your career path'
+      }** (Stage ${user?.currentStage ?? 1}).
 
 How can I accelerate your learning, review your code, or plan your next milestone today?`,
       timestamp: 'Just now',
@@ -110,7 +110,7 @@ How can I accelerate your learning, review your code, or plan your next mileston
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-indigo-900" />
           </div>
           <span className="text-xs sm:text-sm font-bold tracking-wide flex items-center gap-1.5">
-            <span className="hidden xs:inline">AI Mentor</span>
+            <span className="hidden min-[420px]:inline">AI Mentor</span>
             <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
           </span>
         </button>
@@ -142,7 +142,7 @@ How can I accelerate your learning, review your code, or plan your next mileston
                 <p className="text-[10px] sm:text-[11px] text-slate-400 truncate mt-0.5">
                   <span>{user?.careerTitle || 'Full Stack'}</span>
                   <span className="mx-1">•</span>
-                  <span className="text-indigo-300">Stage {user?.currentStage || 2}</span>
+                  <span className="text-indigo-300">Stage {user?.currentStage || 1}</span>
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ How can I accelerate your learning, review your code, or plan your next mileston
             </div>
             <div className="flex items-center gap-1 text-amber-300 font-semibold shrink-0">
               <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>{user?.currentStreakDays || 14}d Streak</span>
+              <span>{user?.currentStreakDays ?? 0}d Streak</span>
             </div>
           </div>
 

@@ -513,92 +513,7 @@ export const DOMAINS: DomainCategory[] = [
   }
 ];
 
-export const RIASEC_QUESTIONS: RIASECQuestion[] = [
-  {
-    id: 1,
-    question: 'When starting a new project, which activity makes you feel most energized and accomplished?',
-    scenario: 'You have a free weekend with zero obligations and full access to tools and resources.',
-    category: 'I',
-    options: [
-      { label: 'Building or repairing physical hardware, machinery, or tangible structures', description: 'Hands-on construction and direct physical creation', type: 'R', points: 3 },
-      { label: 'Solving a complex algorithmic or scientific puzzle from scratch', description: 'Deep intellectual challenge and abstract problem solving', type: 'I', points: 3 },
-      { label: 'Designing an aesthetic visual interface, animation, or music piece', description: 'Creative expression and artistic innovation', type: 'A', points: 3 },
-      { label: 'Mentoring, tutoring, or organizing a study group to help peers succeed', description: 'Empowering others through guidance and teaching', type: 'S', points: 3 },
-      { label: 'Pitching a new startup idea, negotiating deals, and leading the team', description: 'Strategic leadership and persuasive influence', type: 'E', points: 3 },
-      { label: 'Organizing structured data, optimizing budgets, and auditing systematic workflows', description: 'Methodical organization and meticulous accuracy', type: 'C', points: 3 }
-    ]
-  },
-  {
-    id: 2,
-    question: 'How do you prefer to approach a broken or malfunctioning system?',
-    scenario: 'An important application or machine has stopped working right before a major deadline.',
-    category: 'R',
-    options: [
-      { label: 'Physically open the hardware, inspect the wiring, and replace faulty components', description: 'Practical and tactile troubleshooting', type: 'R', points: 3 },
-      { label: 'Analyze logs, isolate mathematical edge cases, and debug the underlying algorithms', description: 'Hypothesis testing and deductive reasoning', type: 'I', points: 3 },
-      { label: 'Re-imagine how the user interacts with it to prevent confusing errors entirely', description: 'Human-centered creative redesign', type: 'A', points: 3 },
-      { label: 'Gather the affected users, understand their frustration, and comfort their immediate needs', description: 'Empathetic communication and support', type: 'S', points: 3 },
-      { label: 'Rally key engineers, delegate responsibilities, and coordinate the crisis response', description: 'Decisive command and resource management', type: 'E', points: 3 },
-      { label: 'Follow standard operating checklists and document the incident report step by step', description: 'Rule-driven compliance and documentation', type: 'C', points: 3 }
-    ]
-  },
-  {
-    id: 3,
-    question: 'What kind of work environment enables your best focus and flow?',
-    scenario: 'Picture your dream workspace five years into your professional career.',
-    category: 'I',
-    options: [
-      { label: 'An engineering workshop with 3D printers, oscilloscopes, and physical tools', description: 'Tactile, high-activity workshop', type: 'R', points: 3 },
-      { label: 'A quiet research lab with dual monitors analyzing data models and algorithms', description: 'Autonomous, analytical sanctuary', type: 'I', points: 3 },
-      { label: 'A vibrant studio filled with sketchpads, design moodboards, and creative canvases', description: 'Inspiring, aesthetic creative space', type: 'A', points: 3 },
-      { label: 'A collaborative open classroom or community space filled with interactive discussions', description: 'Social, people-centric environment', type: 'S', points: 3 },
-      { label: 'A dynamic executive boardroom or fast-paced startup command center', description: 'High-stakes, entrepreneurial arena', type: 'E', points: 3 },
-      { label: 'A well-structured corporate office with clean dashboards and organized databases', description: 'Predictable, organized, and reliable', type: 'C', points: 3 }
-    ]
-  },
-  {
-    id: 4,
-    question: 'Which of the following topics would you most enjoy learning on a Saturday morning?',
-    scenario: 'You are offered a free masterclass in any subject of your choice.',
-    category: 'A',
-    options: [
-      { label: 'Microcontroller circuit fabrication and drone assembly', description: 'Applied engineering and electronics', type: 'R', points: 3 },
-      { label: 'Quantum computing principles and machine learning neural topologies', description: 'Advanced science and computational theory', type: 'I', points: 3 },
-      { label: 'Color psychology, 3D typography, and cinematic lighting', description: 'Visual aesthetics and design philosophy', type: 'A', points: 3 },
-      { label: 'Interpersonal psychology and cross-cultural communication techniques', description: 'Human behavior and counseling skills', type: 'S', points: 3 },
-      { label: 'Venture capital valuation and viral product growth mechanics', description: 'Business strategy and market dynamics', type: 'E', points: 3 },
-      { label: 'Tax structuring, compliance audits, and database query optimization', description: 'Financial precision and structured protocols', type: 'C', points: 3 }
-    ]
-  },
-  {
-    id: 5,
-    question: 'In a group project, which role do you naturally gravitate toward?',
-    scenario: 'A college hackathon team is assembling to build a groundbreaking prototype in 36 hours.',
-    category: 'E',
-    options: [
-      { label: 'The Hardware/Builder Lead: assembling components and testing physical rigs', description: 'Direct physical execution', type: 'R', points: 3 },
-      { label: 'The Core Architect: writing the most challenging algorithms and backends', description: 'Intellectual heavy lifting', type: 'I', points: 3 },
-      { label: 'The UX Designer: crafting the visual look, feel, and brand personality', description: 'Artistic direction and aesthetic polish', type: 'A', points: 3 },
-      { label: 'The Community Coordinator: facilitating team morale and handling user testing', description: 'Team harmony and user empathy', type: 'S', points: 3 },
-      { label: 'The Team Lead & Pitcher: driving the strategy and delivering the demo pitch to judges', description: 'Leadership, charisma, and vision', type: 'E', points: 3 },
-      { label: 'The Project Controller: tracking milestones, deliverables, and repo guidelines', description: 'Timeline management and standards', type: 'C', points: 3 }
-    ]
-  },
-  {
-    id: 6,
-    question: 'What definition of "success" resonates most deeply with you?',
-    scenario: 'Reflecting on your life 15 years from now.',
-    category: 'S',
-    options: [
-      { label: 'Having built tangible, functional machines or structures used by thousands daily', description: 'Tangible craftsmanship', type: 'R', points: 3 },
-      { label: 'Having discovered a breakthrough insight or solved a profound theoretical problem', description: 'Intellectual legacy and discovery', type: 'I', points: 3 },
-      { label: 'Having created original works of beauty or design that moved millions emotionally', description: 'Cultural and creative impact', type: 'A', points: 3 },
-      { label: 'Having directly transformed and elevated the lives, health, or careers of other people', description: 'Humanitarian service and mentorship', type: 'S', points: 3 },
-      { label: 'Having founded a thriving enterprise, generated massive economic value, and led hundreds', description: 'Commercial triumph and enterprise scale', type: 'E', points: 3 },
-      { label: 'Having established flawless, secure, and rock-solid systems that run with 100% precision', description: 'Systemic reliability and governance', type: 'C', points: 3 }
-    ]
-  }
-];
+export { RIASEC_48_QUESTIONS as RIASEC_QUESTIONS } from './riasecData';
 
 export const SAMPLE_ROADMAP_STAGES: RoadmapStage[] = [
   {
@@ -1212,3 +1127,56 @@ export const SAMPLE_PLACEMENT_QUESTIONS: PlacementQuestion[] = [
     explanation: 'Apply the STAR method: Situation (describe the project & deadlock), Task (your role in delivering quality), Action (listen actively, build objective benchmark prototypes/A-B data tests, focus on user impact rather than ego), Result (consensus achieved, timely launch with zero regressions).'
   }
 ];
+
+export function generateDynamicRoadmap(careerId: string, currentStageNum: number = 1): RoadmapStage[] {
+  let careerTitle = 'Full Stack Developer';
+  let skills = ['JavaScript ES6+', 'React 19 & Hooks', 'Node.js', 'PostgreSQL Relational DB'];
+  let keyTopics = ['Programming Fundamentals', 'Component State', 'API Design', 'Database Modeling'];
+  
+  for (const domain of DOMAINS) {
+    const career = domain.careers.find(c => c.id === careerId);
+    if (career) {
+      careerTitle = career.title;
+      skills = career.skillsRequired || skills;
+      keyTopics = career.typicalProjects || keyTopics;
+      break;
+    }
+  }
+
+  // Deep clone and modify the sample roadmap
+  return JSON.parse(JSON.stringify(SAMPLE_ROADMAP_STAGES)).map((stage: RoadmapStage) => {
+    // Dynamic updates based on stage
+    if (stage.stageNumber === 1) {
+      stage.title = `Stage 1 — Foundation in ${careerTitle}`;
+      if (skills[0]) stage.skills[0].name = skills[0];
+    } else if (stage.stageNumber === 2) {
+      stage.title = `Stage 2 — Core Concepts for ${careerTitle}`;
+      if (skills[1]) stage.skills[0].name = skills[1];
+      stage.keyTopics = keyTopics.slice(0, 3);
+    } else if (stage.stageNumber === 3) {
+      stage.title = `Stage 3 — Advanced ${careerTitle} Architecture`;
+      if (skills[2]) stage.skills[0].name = skills[2];
+    }
+    
+    // Set current statuses
+    stage.isCurrent = stage.stageNumber === currentStageNum;
+    if (stage.stageNumber < currentStageNum) {
+      stage.completionPercentage = 100;
+      stage.isLocked = false;
+      stage.skills.forEach(s => s.status = 'completed');
+      stage.tasks.forEach(t => t.completed = true);
+    } else if (stage.stageNumber === currentStageNum) {
+      stage.completionPercentage = 0;
+      stage.isLocked = false;
+      stage.skills.forEach(s => s.status = 'in_progress');
+      stage.tasks.forEach(t => t.completed = false);
+    } else {
+      stage.completionPercentage = 0;
+      stage.isLocked = true;
+      stage.skills.forEach(s => s.status = 'locked');
+      stage.tasks.forEach(t => t.completed = false);
+    }
+    
+    return stage;
+  });
+}

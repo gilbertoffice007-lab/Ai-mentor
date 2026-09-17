@@ -44,6 +44,8 @@ export const Jobs: React.FC<JobsProps> = ({ onNavigate }) => {
         setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'applied' } : j));
         confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
         showToast('Application & verified developer portfolio sent! 💼');
+        const posting = res.job?.externalUrl;
+        if (posting) window.open(posting, '_blank', 'noopener,noreferrer');
       }
     } catch (e) {
       console.error(e);
@@ -63,9 +65,9 @@ export const Jobs: React.FC<JobsProps> = ({ onNavigate }) => {
   };
 
   const filtered = jobs.filter(j =>
-    j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    j.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    j.skillsRequired.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+    (j.title || j.position || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (j.company || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (j.skillsRequired || j.skills || []).some(s => (s || '').toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -152,7 +154,7 @@ export const Jobs: React.FC<JobsProps> = ({ onNavigate }) => {
                     Required Skills
                   </span>
                   <div className="flex flex-wrap gap-1.5">
-                    {job.skillsRequired.map((sk, idx) => (
+                    {(job.skillsRequired || []).map((sk, idx) => (
                       <span
                         key={idx}
                         className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-800 text-slate-200 border border-slate-700"

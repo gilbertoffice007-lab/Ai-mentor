@@ -199,7 +199,7 @@ export const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
                     onClick={() => handleToggleMilestone(selectedProject.id, ms.id)}
                     className={`cursor-pointer p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                       ms.completed
-                        ? 'bg-slate-950/60 border-slate-800 text-slate-400'
+                        ? 'bg-emerald-950/30 border-emerald-900/50 text-emerald-500 completed-milestone'
                         : 'bg-slate-800/70 border-slate-700 hover:border-indigo-500/40 text-slate-200'
                     }`}
                   >
@@ -212,7 +212,7 @@ export const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
                         {ms.completed && <CheckCircle2 className="w-4 h-4 fill-current" />}
                       </button>
                       <div>
-                        <p className={`text-xs font-semibold ${ms.completed ? 'line-through text-slate-500' : 'text-white'}`}>
+                        <p className={`text-xs font-semibold ${ms.completed ? 'line-through text-emerald-600' : 'text-white'}`}>
                           Phase {idx + 1}: {ms.title}
                         </p>
                         <span className="text-[10px] text-slate-400">{ms.deliverable}</span>

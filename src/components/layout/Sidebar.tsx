@@ -1,85 +1,76 @@
 import React from 'react';
 import {
   LayoutDashboard,
+  Compass,
   Milestone,
   CheckSquare,
+  Sparkles,
+  Bot,
+  Brain,
+  Layers,
+  Settings,
   FolderGit2,
+  FileText,
+  Briefcase,
+  GraduationCap,
   Newspaper,
   Calendar,
   BarChart3,
-  UserCheck,
-  FileText,
-  Building2,
-  GraduationCap,
-  Briefcase,
-  Bot,
-  Settings,
-  Sparkles,
-  ChevronRight,
-  Flame,
-  X
+  User,
+  X,
+  Lock
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { checkRouteAccess } from '../../config/semesterAccess';
 
 interface SidebarProps {
   currentRoute: string;
   onNavigate: (route: string) => void;
-  isOpen?: boolean;
-  onClose?: () => void;
-  isMobileOpen?: boolean;
-  onCloseMobile?: () => void;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentRoute,
   onNavigate,
   isOpen,
-  onClose,
-  isMobileOpen,
-  onCloseMobile
+  onClose
 }) => {
   const { user } = useAuth();
-  const effectiveIsOpen = isOpen ?? isMobileOpen ?? false;
-  const handleClose = () => {
-    if (onClose) onClose();
-    else if (onCloseMobile) onCloseMobile();
-  };
 
   const navItems = [
-    { label: 'Dashboard', route: '/dashboard', icon: LayoutDashboard, badge: 'Overview' },
-    { label: 'My Roadmap', route: '/roadmap', icon: Milestone, badge: 'Stage 2' },
-    { label: 'Daily Tasks', route: '/tasks', icon: CheckSquare, badge: 'Day 17' },
-    { label: 'Projects', route: '/projects', icon: FolderGit2, badge: '3 Active' },
-    { label: 'Tech News', route: '/news', icon: Newspaper },
-    { label: 'Events & Hackathons', route: '/events', icon: Calendar, badge: 'Live' },
-    { label: 'Analytics', route: '/analytics', icon: BarChart3 },
-    { label: 'Developer Profile', route: '/developer-profile', icon: UserCheck, badge: 'Stage 4' },
-    { label: 'Resume Builder', route: '/resume', icon: FileText, badge: 'ATS 92%' },
-    { label: 'Internships', route: '/internships', icon: Building2, badge: '94% Match' },
-    { label: 'Placement Prep', route: '/placement', icon: GraduationCap, badge: 'DSA & Mock' },
-    { label: 'Job Portal', route: '/jobs', icon: Briefcase, badge: 'Stage 6' },
-    { label: 'AI Mentor Room', route: '/mentor', icon: Bot, isHighlight: true },
-    { label: 'Settings & Semester', route: '/settings', icon: Settings }
+    { label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard', badge: 'Overview' },
+    { label: 'My Roadmap', icon: Milestone, route: '/roadmap', badge: `Stage ${user?.currentStage || 1}` },
+    { label: 'Daily Tasks', icon: CheckSquare, route: '/tasks', badge: `Day ${user?.currentDay || 1}` },
+    { label: 'Projects', icon: FolderGit2, route: '/projects', badge: '3 Active' },
+    { label: 'Tech News', icon: Newspaper, route: '/news' },
+    { label: 'Events & Hackathons', icon: Calendar, route: '/events', badge: 'Live' },
+    { label: 'Analytics', icon: BarChart3, route: '/analytics' },
+    { label: 'Developer Profile', icon: User, route: '/developer-profile', badge: 'Stage 4' },
+    { label: 'Resume Builder', icon: FileText, route: '/resume', badge: 'ATS 92%' },
+    { label: 'Internships', icon: Briefcase, route: '/internships', badge: '94% Match' },
+    { label: 'Placement Prep', icon: GraduationCap, route: '/placement', badge: 'DSA & Mock' },
+    { label: 'Job Portal', icon: Briefcase, route: '/jobs', badge: 'Stage 6' },
+    { label: 'AI Mentor Room', icon: Bot, route: '/mentor', isHighlight: true },
+    { label: 'Settings', icon: Settings, route: '/settings' }
   ];
 
   return (
     <>
-      {/* Mobile overlay */}
-      {effectiveIsOpen && (
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
         <div
-          id="sidebar-mobile-overlay"
-          onClick={handleClose}
-          className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm lg:hidden transition-opacity"
+          id="sidebar-backdrop"
+          onClick={onClose}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
         />
       )}
 
-      {/* Main Sidebar */}
+      {/* Main Sidebar Shell */}
       <aside
         id="app-sidebar"
         className={`fixed top-0 bottom-0 left-0 z-50 lg:z-20 lg:top-16 w-72 sm:w-64 bg-[#11141D] border-r border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          effectiveIsOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
         {/* Top Header - Mobile only */}
@@ -94,8 +85,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
           <button
-            onClick={handleClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800"
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 cursor-pointer"
             aria-label="Close menu"
           >
             <X className="w-4 h-4" />
@@ -111,12 +102,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
             <div
               className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500"
-              style={{ width: `${user?.overallProgress || 72}%` }}
+              style={{ width: `${user?.overallProgress ?? 0}%` }}
             />
           </div>
           <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1.5 font-medium">
-            <span>Stage {user?.currentStage || 2} Active</span>
-            <span className="text-indigo-400 font-bold">{user?.overallProgress || 72}%</span>
+            <span>Stage {user?.currentStage || 1} Active</span>
+            <span className="text-indigo-400 font-bold">{user?.overallProgress ?? 0}%</span>
           </div>
         </div>
 
@@ -125,35 +116,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentRoute === item.route;
+            const { hasAccess, requiredStage } = checkRouteAccess(item.route, user?.currentStage || 1);
 
             return (
               <button
                 key={item.route}
                 id={`sidebar-link-${item.route.replace('/', '')}`}
                 onClick={() => {
-                  onNavigate(item.route);
-                  handleClose();
+                  if (hasAccess) {
+                    onNavigate(item.route);
+                    onClose();
+                  }
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group ${
-                  item.isHighlight
+                disabled={!hasAccess}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group ${hasAccess ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'} ${
+                  item.isHighlight && hasAccess
                     ? isActive
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-bold'
                       : 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/20'
                     : isActive
                     ? 'bg-slate-800 text-indigo-400 border border-slate-700 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                    : hasAccess 
+                      ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                      : 'text-slate-500 bg-slate-900/40 border border-slate-800/50'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Icon
-                    className={`w-4 h-4 transition-colors ${
-                      isActive ? 'text-indigo-400' : item.isHighlight ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'
-                    }`}
-                  />
+                  {hasAccess ? (
+                    <Icon
+                      className={`w-4 h-4 transition-colors ${
+                        isActive ? 'text-indigo-400' : item.isHighlight ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'
+                      }`}
+                    />
+                  ) : (
+                    <Lock className="w-4 h-4 text-slate-600" />
+                  )}
                   <span>{item.label}</span>
                 </div>
 
-                {item.badge && (
+                {!hasAccess ? (
+                  <span className="text-[10px] px-2 py-0.5 rounded-lg font-semibold bg-slate-800/40 text-slate-500 border border-slate-700/30">
+                    Sem {requiredStage}
+                  </span>
+                ) : item.badge && (
                   <span
                     className={`text-[10px] px-2 py-0.5 rounded-lg font-semibold ${
                       isActive
@@ -172,7 +177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Bottom AI Mentor Quick Trigger Card */}
         <div className="p-3 border-t border-slate-800 bg-[#0A0C10]">
           <div
-            onClick={() => { onNavigate('/mentor'); handleClose(); }}
+            onClick={() => { onNavigate('/mentor'); onClose(); }}
             className="cursor-pointer p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 hover:border-indigo-500/40 transition-all group"
           >
             <div className="flex items-center gap-2">

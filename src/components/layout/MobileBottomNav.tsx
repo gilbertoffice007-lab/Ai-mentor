@@ -5,8 +5,11 @@ import {
   CheckSquare,
   FolderGit2,
   Bot,
-  Menu
+  Menu,
+  Lock
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { checkRouteAccess } from '../../config/semesterAccess';
 
 interface MobileBottomNavProps {
   currentRoute: string;
@@ -19,6 +22,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onNavigate,
   onOpenSidebar
 }) => {
+  const { user } = useAuth();
+
   const tabs = [
     { label: 'Dashboard', route: '/dashboard', icon: LayoutDashboard },
     { label: 'Roadmap', route: '/roadmap', icon: Milestone },
@@ -35,15 +40,19 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       <nav className="flex items-center justify-around max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive = currentRoute === tab.route;
-          const Icon = tab.icon;
+          const { hasAccess } = checkRouteAccess(tab.route, user?.currentStage || 1);
+          const Icon = hasAccess ? tab.icon : Lock;
 
           return (
             <button
               key={tab.route}
               id={`mobile-tab-${tab.route.replace('/', '')}`}
-              onClick={() => onNavigate(tab.route)}
-              className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all min-w-[56px] min-h-[44px] ${
-                isActive
+              onClick={() => {
+                if (hasAccess) onNavigate(tab.route);
+              }}
+              disabled={!hasAccess}
+              className={`flex flex-col flex-1 min-w-0 items-center justify-center py-1 px-1 rounded-xl transition-all min-h-[48px] ${
+                !hasAccess ? 'opacity-50 cursor-not-allowed' : isActive
                   ? 'text-indigo-400 font-bold'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
@@ -51,14 +60,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               <div className="relative">
                 <Icon
                   className={`w-5 h-5 transition-transform ${
-                    isActive ? 'scale-110 text-indigo-400' : 'text-slate-400'
+                    !hasAccess ? 'text-slate-500' : isActive ? 'scale-110 text-indigo-400' : 'text-slate-400'
                   }`}
                 />
-                {tab.isHighlight && (
+                {tab.isHighlight && hasAccess && (
                   <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-cyan-400 ring-2 ring-[#11141D]" />
                 )}
               </div>
-              <span className={`text-[10px] mt-0.5 tracking-tight ${isActive ? 'text-indigo-300 font-semibold' : 'text-slate-400'}`}>
+              <span className={`text-[10px] mt-0.5 tracking-tight ${!hasAccess ? 'text-slate-500' : isActive ? 'text-indigo-300 font-semibold' : 'text-slate-400'}`}>
                 {tab.label}
               </span>
             </button>
@@ -69,7 +78,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           id="mobile-tab-more"
           onClick={onOpenSidebar}
-          className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-all min-w-[56px] min-h-[44px]"
+          className="flex flex-col flex-1 min-w-0 items-center justify-center py-1 px-1 rounded-xl text-slate-400 hover:text-slate-200 transition-all min-h-[48px]"
         >
           <Menu className="w-5 h-5 text-slate-400" />
           <span className="text-[10px] mt-0.5 tracking-tight text-slate-400 font-medium">More</span>

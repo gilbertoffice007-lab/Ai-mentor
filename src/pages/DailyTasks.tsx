@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { getCurrentSemester } from '../lib/semesterCalculator';
 import { DailyTask } from '../types';
 import {
   CheckSquare,
@@ -24,19 +25,25 @@ interface DailyTasksProps {
 export const DailyTasks: React.FC<DailyTasksProps> = ({ onNavigate }) => {
   const { user, showToast } = useAuth();
   const [tasks, setTasks] = useState<DailyTask[]>([]);
-  const [dayNumber, setDayNumber] = useState(17);
   const [goalTitle, setGoalTitle] = useState('Master React Performance & FastAPI Architecture');
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [missedDays, setMissedDays] = useState(3);
   const [remainingWeeks, setRemainingWeeks] = useState(8);
   const [isRescheduling, setIsRescheduling] = useState(false);
 
+  // Dynamic semester calculation
+  const semesterInfo = getCurrentSemester(
+    user?.courseStartDate,
+    user?.totalSemesters || 8,
+    user?.courseDurationMonths || 6
+  );
+  const dayNumber = semesterInfo.semesterDay || 1;
+
   useEffect(() => {
     const loadTasks = async () => {
       try {
         const res = await api.getDailyTasks();
         setTasks(res.tasks || []);
-        if (res.dayNumber) setDayNumber(res.dayNumber);
         if (res.goalTitle) setGoalTitle(res.goalTitle);
       } catch (e) {
         console.error(e);
@@ -108,7 +115,7 @@ export const DailyTasks: React.FC<DailyTasksProps> = ({ onNavigate }) => {
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
             <Flame className="w-4 h-4 fill-amber-400" />
-            <span>{user?.currentStreakDays || 14} Day Streak</span>
+            <span>{user?.currentStreakDays ?? 0} Day Streak</span>
           </div>
 
           <button
@@ -149,9 +156,9 @@ export const DailyTasks: React.FC<DailyTasksProps> = ({ onNavigate }) => {
               key={task.id}
               className={`rounded-3xl border p-6 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                 isDone
-                  ? 'bg-slate-900/50 border-emerald-500/30 opacity-80'
+                  ? 'bg-slate-800/50 border-emerald-500/30'
                   : isSkipped
-                  ? 'bg-slate-900/40 border-amber-500/30'
+                  ? 'bg-slate-800/40 border-amber-500/30'
                   : 'bg-slate-900 border-slate-800 hover:border-indigo-500/40 shadow-xl'
               }`}
             >
@@ -170,7 +177,7 @@ export const DailyTasks: React.FC<DailyTasksProps> = ({ onNavigate }) => {
 
                 <div className="space-y-1.5 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className={`text-base font-bold ${isDone ? 'line-through text-slate-500' : 'text-white'}`}>
+                    <h3 className={`text-base font-bold ${isDone ? 'line-through text-slate-400' : 'text-white'}`}>
                       {task.title}
                     </h3>
                     <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
@@ -184,9 +191,9 @@ export const DailyTasks: React.FC<DailyTasksProps> = ({ onNavigate }) => {
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed">{task.description}</p>
+                  <p className={`text-xs leading-relaxed ${isDone ? 'text-slate-500' : 'text-slate-300'}`}>{task.description}</p>
 
-                  <div className="flex items-center gap-4 text-xs text-slate-400 pt-1">
+                  <div className={`flex items-center gap-4 text-xs pt-1 ${isDone ? 'text-slate-500' : 'text-slate-400'}`}>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
                       {task.estimatedMinutes} mins

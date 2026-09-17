@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { getCurrentSemester, getTimeGreeting } from '../lib/semesterCalculator';
 import {
   Milestone,
   CheckSquare,
@@ -63,9 +64,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     loadDashboardData();
   }, []);
 
-  const currentStageNum = user?.currentStage || 2;
-  const progressPct = user?.overallProgress || 72;
-  const circumference = 2 * Math.PI * 58; // 364.42
+  const currentStageNum = user?.currentStage || 1;
+  // Dynamic semester calculation
+  const semesterInfo = getCurrentSemester(
+    user?.courseStartDate,
+    user?.totalSemesters || 8,
+    user?.courseDurationMonths || 6
+  );
+  const progressPct = semesterInfo.semesterProgress || user?.overallProgress || 0;
+  const greeting = getTimeGreeting();
+  const circumference = 2 * Math.PI * 58;
   const strokeOffset = circumference - (circumference * progressPct) / 100;
 
   const currentStageInfo = stages.find(s => s.stageNumber === currentStageNum) || stages[1];
@@ -97,25 +105,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
             
             <h2 className="text-2xl sm:text-3xl font-light text-slate-100">
-              Good morning, <span className="font-bold text-white">{user?.fullName?.split(' ')[0] || 'Gilbert'}</span>
+              {greeting}, <span className="font-bold text-white">{user?.fullName?.split(' ')[0] || 'Student'}</span>
             </h2>
             <p className="text-slate-400 mt-2 text-xs sm:text-sm max-w-xl leading-relaxed">
-              You are {progressPct}% through Stage {currentStageNum}: <strong className="text-white">{currentStageInfo?.title || 'Development Phase'}</strong>. Your next milestone is the <strong>Backend API Masterclass</strong>.
+              {semesterInfo.semesterLabel} &nbsp;·&nbsp;
+              <span className="text-indigo-300 font-semibold">{progressPct}% complete</span>
+              {user?.careerTitle && <> &nbsp;·&nbsp; <strong className="text-white">{user.careerTitle}</strong></>}
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-indigo-500/20 relative z-10">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 pt-4 sm:mt-6 sm:pt-6 border-t border-indigo-500/20 relative z-10">
             <div>
               <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-semibold">Current Path</p>
-              <p className="text-xs sm:text-sm font-bold text-white truncate">{user?.careerTitle || 'Full-Stack AI Developer'}</p>
+              <p className="text-xs sm:text-sm font-bold text-white truncate">{user?.careerTitle || '—'}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-semibold">Daily Goal</p>
-              <p className="text-xs sm:text-sm font-bold text-white">{user?.availableHoursPerDay || 3.5} Hours Target</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-semibold">Semester Day</p>
+              <p className="text-xs sm:text-sm font-bold text-cyan-300">Day {semesterInfo.semesterDay} of {semesterInfo.totalSemesterDays}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-semibold">RIASEC Match</p>
-              <p className="text-xs sm:text-sm font-bold text-emerald-400">{user?.riasecResult?.dominantCode || 'I-E-S'} (94%)</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-semibold">RIASEC Code</p>
+              <p className="text-xs sm:text-sm font-bold text-emerald-400">{user?.riasecResult?.dominantCode || '—'}</p>
             </div>
           </div>
 
@@ -157,13 +167,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           
           <div className="text-center">
             <p className="text-xs font-semibold text-white">Stage {currentStageNum}: Development Phase</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{user?.totalHoursLearned || 148} total hours completed</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{user?.totalHoursLearned ?? 0} total hours completed</p>
           </div>
 
           <div className="mt-4 flex items-center gap-3 text-xs">
             <span className="flex items-center gap-1 text-amber-400 font-bold">
               <Flame className="w-3.5 h-3.5 fill-amber-400" />
-              {user?.currentStreakDays || 14}d Streak
+                {user?.currentStreakDays ?? 0}d Streak
             </span>
             <span className="text-slate-700">•</span>
             <span className="flex items-center gap-1 text-cyan-400 font-bold">
@@ -190,7 +200,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               </span>
               <button
                 onClick={() => onNavigate('/roadmap')}
-                className="ml-2 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                className="ml-2 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors cursor-pointer"
               >
                 View Full Map
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -256,7 +266,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500">Today's Tasks</h3>
               <button
                 onClick={() => onNavigate('/tasks')}
-                className="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                className="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
               >
                 Schedule <ArrowRight className="w-3 h-3" />
               </button>
@@ -277,7 +287,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     <button
                       id={`btn-bento-task-${task.id}`}
                       onClick={() => completeDailyTask(task.id)}
-                      className={`w-5 h-5 rounded-lg border flex items-center justify-center mr-3 shrink-0 transition-colors ${
+                      className={`w-5 h-5 rounded-lg border flex items-center justify-center mr-3 shrink-0 transition-colors cursor-pointer ${
                         isDone
                           ? 'border-indigo-500 bg-indigo-500/20 text-indigo-400'
                           : 'border-slate-600 hover:border-indigo-400 text-transparent'
@@ -300,7 +310,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <div className="pt-2">
             <button
               onClick={() => onNavigate('/tasks')}
-              className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700/50 transition-all"
+              className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700/50 transition-all cursor-pointer"
             >
               Open Daily Planner
             </button>
@@ -314,7 +324,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500">Upcoming Events</h3>
               <button
                 onClick={() => onNavigate('/events')}
-                className="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                className="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
               >
                 All Events <ArrowRight className="w-3 h-3" />
               </button>
@@ -342,7 +352,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <div className="pt-2">
             <button
               onClick={() => onNavigate('/events')}
-              className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700/50 transition-all"
+              className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700/50 transition-all cursor-pointer"
             >
               Browse Hackathons
             </button>
@@ -360,7 +370,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
             
             <p className="text-xs leading-relaxed text-slate-300 italic">
-              "{user?.fullName?.split(' ')[0] || 'Gilbert'}, based on your current project velocity, you're 2 days ahead of schedule. Consider exploring 'Framer Motion' and Dockerizing your portfolio next week."
+              "{user?.fullName?.split(' ')[0] || 'there'}, based on your current project velocity, you're making steady progress. Keep completing daily tasks to push your overall progress of {user?.overallProgress ?? 0}% higher next week."
             </p>
           </div>
 
@@ -368,7 +378,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <button
               id="btn-bento-ask-mentor"
               onClick={() => onNavigate('/mentor')}
-              className="w-full py-2.5 bg-white text-[#0A0C10] rounded-xl text-xs font-bold hover:bg-slate-200 transition-colors shadow-md"
+              className="w-full py-2.5 bg-white text-[#0A0C10] rounded-xl text-xs font-bold hover:bg-slate-200 transition-colors shadow-md cursor-pointer"
             >
               Ask AI Mentor
             </button>
@@ -387,7 +397,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
             <button
               onClick={() => onNavigate('/projects')}
-              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
             >
               Project Hub <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -455,7 +465,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
           <button
             onClick={() => onNavigate('/analytics')}
-            className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700/50 transition-all text-center"
+            className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-slate-700/50 transition-all text-center cursor-pointer"
           >
             Full Analytics Breakdown
           </button>

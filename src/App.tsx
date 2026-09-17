@@ -5,12 +5,15 @@ import { Sidebar } from './components/layout/Sidebar';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { FloatingMentorWidget } from './components/mentor/FloatingMentorWidget';
 import { Compass, RefreshCw, Sparkles } from 'lucide-react';
+import { checkRouteAccess } from './config/semesterAccess';
 
 // Pages
 import { Landing } from './pages/Landing';
 import { ExploreDomains } from './pages/ExploreDomains';
 import { Auth } from './pages/Auth';
 import { PersonalityTest } from './pages/PersonalityTest';
+import { CareerResult } from './pages/CareerResult';
+import { AcademicSetup } from './pages/AcademicSetup';
 import { Dashboard } from './pages/Dashboard';
 import { Roadmap } from './pages/Roadmap';
 import { DailyTasks } from './pages/DailyTasks';
@@ -42,29 +45,124 @@ const PROTECTED_ROUTES = [
   '/settings',
 ];
 
+// Routes that are part of the onboarding flow — isolated layout (no sidebar)
+const ONBOARDING_ROUTES = [
+  '/personality-test',
+  '/assignment',
+  '/assessment',
+  '/career-result',
+  '/onboarding/setup',
+];
+
 const AppContent: React.FC = () => {
   const { user, isLoading, toast, hideToast, showToast } = useAuth();
-  const [currentRoute, setCurrentRoute] = useState<string>(user ? '/dashboard' : '/');
+
+  /**
+   * Determine the correct initial route based on the user's onboarding state.
+   * This implements the full 5-step onboarding chain:
+   *   1. No user             → Landing
+   *   2. No riasecResult     → Assessment
+   *   3. No domainId         → Career Result / Selection
+   *   4. No courseStartDate  → Academic Setup
+   *   5. All complete        → Dashboard
+   */
+  const [currentRoute, setCurrentRoute] = useState<string>(() => window.location.pathname || '/');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Sync state with browser URL
+  const safeSetRoute = (route: string, replace = false) => {
+    setCurrentRoute(route);
+    if (window.location.pathname !== route) {
+      if (replace) {
+        window.history.replaceState(null, '', route);
+      } else {
+        window.history.pushState(null, '', route);
+      }
+    }
+  };
+
+  // Listen for browser Back/Forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRoute(window.location.pathname || '/');
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Sync route on auth state changes
   useEffect(() => {
     if (!isLoading) {
       if (!user && PROTECTED_ROUTES.includes(currentRoute)) {
-        setCurrentRoute('/auth');
+        safeSetRoute('/auth', true);
         showToast('Please sign in to access your student dashboard.', 'info');
-      } else if (user && (currentRoute === '/auth' || currentRoute === '/')) {
-        setCurrentRoute('/dashboard');
+      } else if (user) {
+        // Step-by-step onboarding enforcement
+        if (!user.riasecResult) {
+          // Must complete assessment first
+          if (!ONBOARDING_ROUTES.includes(currentRoute) || currentRoute === '/career-result' || currentRoute === '/onboarding/setup') {
+            safeSetRoute('/personality-test', true);
+            if (PROTECTED_ROUTES.includes(currentRoute)) {
+              showToast('Complete your Career Assessment to get started.', 'info');
+            }
+          }
+        } else if (!user.domainId) {
+          // Must select a career path
+          if (currentRoute !== '/career-result') {
+            safeSetRoute('/career-result', true);
+          }
+        } else if (!user.courseStartDate) {
+          // Must complete academic setup
+          if (currentRoute !== '/onboarding/setup') {
+            safeSetRoute('/onboarding/setup', true);
+          }
+        } else if (currentRoute === '/auth' || currentRoute === '/') {
+          safeSetRoute('/dashboard', true);
+        } else if (PROTECTED_ROUTES.includes(currentRoute)) {
+          const { hasAccess, requiredStage } = checkRouteAccess(currentRoute, user.currentStage);
+          if (!hasAccess) {
+            showToast(`This feature unlocks in Semester ${requiredStage}.`, 'warning');
+            safeSetRoute('/dashboard', true);
+          }
+        }
       }
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, currentRoute]);
+
+  // Auth + onboarding screens are checkpoints, not history entries.
+  // Navigating TO them REPLACES the current entry instead of pushing.
+  // Without this, browser Back walks into stale onboarding pages whose
+  // guards instantly push forward again — an infinite back-button trap
+  // (e.g. Back onto /personality-test after finishing the assessment).
+  const REPLACE_TARGETS = ['/auth', ...ONBOARDING_ROUTES];
 
   const handleNavigate = (route: string) => {
+    const useReplace = REPLACE_TARGETS.includes(route);
     if (!user && PROTECTED_ROUTES.includes(route)) {
       showToast('Please sign in to access this feature.', 'info');
-      setCurrentRoute('/auth');
+      safeSetRoute('/auth', true);
+    } else if (user) {
+      // Enforce onboarding flow
+      if (!user.riasecResult && !ONBOARDING_ROUTES.includes(route)) {
+        showToast('Please complete your Career Assessment first.', 'info');
+        safeSetRoute('/personality-test', true);
+      } else if (user.riasecResult && !user.domainId && route !== '/career-result' && !ONBOARDING_ROUTES.includes(route)) {
+        safeSetRoute('/career-result', true);
+      } else if (user.riasecResult && user.domainId && !user.courseStartDate && route !== '/onboarding/setup' && PROTECTED_ROUTES.includes(route)) {
+        safeSetRoute('/onboarding/setup', true);
+      } else if (PROTECTED_ROUTES.includes(route)) {
+        const { hasAccess, requiredStage } = checkRouteAccess(route, user.currentStage);
+        if (!hasAccess) {
+          showToast(`This feature unlocks in Semester ${requiredStage}.`, 'warning');
+          return;
+        }
+        safeSetRoute(route);
+      } else {
+        safeSetRoute(route, useReplace);
+      }
     } else {
-      setCurrentRoute(route);
+      safeSetRoute(route, useReplace);
     }
     setIsMobileSidebarOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -94,8 +192,17 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // Public/Starting Flow Pages (No Dashboard Sidebar)
-  const isPublicFlow = currentRoute === '/' || currentRoute === '/auth' || currentRoute === '/explore' || !user;
+  // Public/onboarding flow: no sidebar shown
+  const isPublicFlow = [
+    '/',
+    '/auth',
+    '/explore',
+    '/personality-test',
+    '/assignment',
+    '/assessment',
+    '/career-result',
+    '/onboarding/setup',
+  ].includes(currentRoute) || !user;
 
   const renderCurrentPage = () => {
     switch (currentRoute) {
@@ -106,7 +213,13 @@ const AppContent: React.FC = () => {
       case '/auth':
         return <Auth onNavigate={handleNavigate} />;
       case '/personality-test':
+      case '/assignment':
+      case '/assessment':
         return <PersonalityTest onNavigate={handleNavigate} />;
+      case '/career-result':
+        return <CareerResult onNavigate={handleNavigate} />;
+      case '/onboarding/setup':
+        return <AcademicSetup onNavigate={handleNavigate} />;
       case '/dashboard':
         return <Dashboard onNavigate={handleNavigate} />;
       case '/roadmap':

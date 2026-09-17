@@ -303,7 +303,7 @@ export const DomainExplorer3D: React.FC<DomainExplorer3DProps> = ({ domain, onSe
             Interactive 3D Universe
           </div>
           <h2 className="text-lg sm:text-2xl font-bold text-white mt-0.5 sm:mt-1">{domain.name}</h2>
-          <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5 hidden xs:block">Click any node or drag to rotate 360°</p>
+          <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5 hidden min-[420px]:block">Click any node or drag to rotate 360°</p>
         </div>
 
         {hoveredCareer && (

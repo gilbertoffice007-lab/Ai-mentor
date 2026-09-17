@@ -46,6 +46,8 @@ export const Internships: React.FC<InternshipsProps> = ({ onNavigate }) => {
         setInternships(prev => prev.map(i => i.id === id ? { ...i, status: 'applied' } : i));
         confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
         showToast('Application & verified developer profile dispatched! 📤');
+        const posting = res.internship?.externalUrl;
+        if (posting) window.open(posting, '_blank', 'noopener,noreferrer');
       }
     } catch (e) {
       console.error(e);
@@ -65,9 +67,9 @@ export const Internships: React.FC<InternshipsProps> = ({ onNavigate }) => {
   };
 
   const filtered = internships.filter(item => {
-    const matchesSearch = item.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.skillsRequired.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = (item.role || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.company || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.skillsRequired || item.requiredSkills || []).some(s => (s || '').toLowerCase().includes(searchQuery.toLowerCase()));
     if (selectedDomain !== 'all') return matchesSearch && item.domainId === selectedDomain;
     return matchesSearch;
   });
@@ -164,7 +166,7 @@ export const Internships: React.FC<InternshipsProps> = ({ onNavigate }) => {
                     Required Competencies
                   </span>
                   <div className="flex flex-wrap gap-1.5">
-                    {item.skillsRequired.map((sk, idx) => (
+                    {(item.skillsRequired || []).map((sk, idx) => (
                       <span
                         key={idx}
                         className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-800 text-slate-200 border border-slate-700"

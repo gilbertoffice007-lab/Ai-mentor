@@ -18,12 +18,27 @@ import {
   BookOpen
 } from 'lucide-react';
 import { DOMAINS } from '../data/initialData';
+import { useAuth } from '../context/AuthContext';
 
 interface LandingProps {
   onNavigate: (route: string) => void;
 }
 
 export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
+  const { user } = useAuth();
+
+  // Workflow: landing → auth → assessment → dashboard.
+  // Logged-out visitors go to auth first so results are never lost;
+  // students who finished the assessment jump straight to their dashboard.
+  const goStart = () => {
+    if (!user) {
+      onNavigate('/auth');
+    } else if (user.riasecResult) {
+      onNavigate('/dashboard');
+    } else {
+      onNavigate('/personality-test');
+    }
+  };
   const careerJourneyStages = [
     { num: '01', title: 'School & Foundation', desc: 'Core logic, math, fundamentals, and scientific inquiry.', icon: BookOpen, color: 'from-blue-500 to-cyan-400' },
     { num: '02', title: 'Career Discovery', desc: 'Holland RIASEC psychometric analysis and 3D domain exploration.', icon: Compass, color: 'from-cyan-400 to-indigo-500' },
@@ -34,7 +49,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white overflow-x-clip">
       {/* Background radial glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-600/15 via-cyan-500/10 to-transparent blur-3xl pointer-events-none -z-10" />
 
@@ -60,7 +75,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             id="btn-hero-start-journey"
-            onClick={() => onNavigate('/personality-test')}
+            onClick={goStart}
             className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold text-base shadow-2xl shadow-indigo-500/30 flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 transition-all"
           >
             Start Your Career Journey
@@ -207,7 +222,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 id="btn-landing-take-assessment"
-                onClick={() => onNavigate('/personality-test')}
+                onClick={goStart}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-white hover:bg-slate-100 text-indigo-900 font-extrabold text-sm shadow-xl transition-all"
               >
                 Take Free RIASEC Career Test

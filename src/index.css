@@ -1,16 +1,89 @@
 @import "tailwindcss";
 
 @layer base {
+  html, body {
+    /* Clip runaway decorative blobs on phones. `clip` (not `hidden`)
+       preserves position:sticky used by headers. */
+    overflow-x: clip;
+  }
   body {
-    background-color: #0A0C10;
+    background-color: #07090E;
     color: #cbd5e1;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  }
+  /* Fallback for browsers without `overflow: clip` support */
+  @supports not (overflow: clip) {
+    html, body {
+      overflow-x: hidden;
+    }
+  }
+  /* Media never overflows its container */
+  img, video, canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  /* Comfortable tap feedback on touch */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
+/* Hide scrollbars on horizontal tab rails (tabs stay swipeable) */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* iPhone home-indicator clearance for the mobile bottom nav */
+.safe-area-pb {
+  padding-bottom: max(0.375rem, env(safe-area-inset-bottom));
+}
+
+/* Entrance + error feedback animations (used across pages) */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-in {
+  animation: fade-in 240ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-shake,
+  .anim-pulse-glow,
+  .anim-beam,
+  .anim-rise,
+  .anim-enter,
+  .anim-sweep {
+    animation: none;
+  }
+}
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-5px);
+  }
+  40%, 80% {
+    transform: translateX(5px);
+  }
+}
+.animate-shake {
+  animation: shake 420ms ease both;
+}
+
 /* ============================================================
-   BENTO GRID STYLING
+   BENTO GRID STYLING - PERFECT DARK THEME
    ============================================================ */
 
 .bento-card {
@@ -219,13 +292,13 @@
   border-radius: 999px;
 }
 
-/* Custom scrollbar styling */
+/* Custom sleek dark scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0C10;
+  background: #07090E;
 }
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
@@ -236,373 +309,592 @@
 }
 
 /* ============================================================
-   LIGHT THEME COMPLETE HIGH-CONTRAST SYSTEM
+   LIGHT THEME — polished, high-contrast, user-friendly
+   The app is dark-first; `.light` (set on <html>) remaps every
+   dark surface / text / border to a soft slate + white system.
+   Contrast targets on white: primary ~15:1, secondary ~8:1,
+   muted >= 4.5:1, accent text >= 4.5:1 — nothing hidden.
    ============================================================ */
 
-html.light,
-html:not(.dark) {
+.light {
   color-scheme: light;
+  --background: #EDF1F7; /* soft slate page — clearly distinct from white cards */
+  --surface: #FFFFFF;
+  --surface-secondary: #F1F5F9; /* slate-100 */
+  --surface-tertiary: #E2E8F0;  /* slate-200 */
+  --text-primary: #0F172A;   /* slate-900 */
+  --text-secondary: #334155; /* slate-700 */
+  --text-muted: #64748B;     /* slate-500 — never lighter for text */
+  --border: #E2E8F0;         /* slate-200 */
+  --border-strong: #CBD5E1;  /* slate-300 */
+  --primary: #4F46E5;        /* brand indigo-600 */
+  --primary-light: #EEF2FF;  /* indigo-50 */
+  --success: #047857;
+  --warning: #B45309;
+  --info: #0369A1;
 }
 
-html.light body,
-html:not(.dark) body {
-  background-color: #F8FAFC !important;
-  color: #0F172A !important;
+/* Base page */
+.light body,
+.light #root {
+  background-color: var(--background) !important;
+  color: var(--text-secondary);
+}
+.light ::selection {
+  background: rgba(79, 70, 229, 0.22) !important;
 }
 
-/* Main background containers */
-html.light .bg-slate-950,
-html:not(.dark) .bg-slate-950,
-html.light .bg-\[\#07090E\],
-html:not(.dark) .bg-\[\#07090E\],
-html.light .bg-\[\#0A0C10\],
-html:not(.dark) .bg-\[\#0A0C10\],
-html.light .bg-\[\#06080E\],
-html:not(.dark) .bg-\[\#06080E\] {
-  background-color: #F8FAFC !important;
-  color: #0F172A !important;
+/* ---- Page backgrounds (solid + translucent dark washes) ---- */
+.light body,
+.light .min-h-screen,
+.light [class*="bg-[#07090E]"],
+.light [class*="bg-[#06080E]"],
+.light [class*="bg-[#0A0C10]"],
+.light [class*="bg-[#0E1118]"],
+.light [class*="bg-slate-950"] {
+  background-color: var(--background) !important;
+  color: var(--text-secondary);
 }
 
-/* Primary cards & Bento boxes in Light Mode */
-html.light .bg-slate-900,
-html:not(.dark) .bg-slate-900,
-html.light .bg-slate-900\/90,
-html:not(.dark) .bg-slate-900\/90,
-html.light .bg-slate-900\/80,
-html:not(.dark) .bg-slate-900\/80,
-html.light .bg-slate-900\/70,
-html:not(.dark) .bg-slate-900\/70,
-html.light .bg-slate-900\/60,
-html:not(.dark) .bg-slate-900\/60,
-html.light .bg-slate-900\/50,
-html:not(.dark) .bg-slate-900\/50,
-html.light .bg-slate-900\/40,
-html:not(.dark) .bg-slate-900\/40,
-html.light .bg-\[\#11141D\],
-html:not(.dark) .bg-\[\#11141D\],
-html.light .bg-\[\#0D111A\],
-html:not(.dark) .bg-\[\#0D111A\],
-html.light .bg-\[\#0D111A\]\/90,
-html:not(.dark) .bg-\[\#0D111A\]\/90,
-html.light .bg-\[\#0D111A\]\/98,
-html:not(.dark) .bg-\[\#0D111A\]\/98,
-html.light .bg-\[\#0E1118\]\/98,
-html:not(.dark) .bg-\[\#0E1118\]\/98,
-html.light .bento-card,
-html:not(.dark) .bento-card {
-  background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.07), 0 1px 3px 0 rgba(15, 23, 42, 0.04) !important;
+/* Sticky glass headers stay translucent — but white in light mode */
+.light header[class*="backdrop-blur"],
+.light [class*="sticky"][class*="backdrop-blur"],
+.light [class*="bg-[#07090E]/"][class*="backdrop-blur"],
+.light [class*="bg-slate-900/9"][class*="backdrop-blur"] {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* Secondary sub-cards and list items */
-html.light .bg-slate-800,
-html:not(.dark) .bg-slate-800,
-html.light .bg-slate-800\/80,
-html:not(.dark) .bg-slate-800\/80,
-html.light .bg-slate-800\/70,
-html:not(.dark) .bg-slate-800\/70,
-html.light .bg-slate-800\/60,
-html:not(.dark) .bg-slate-800\/60,
-html.light .bg-slate-800\/40,
-html:not(.dark) .bg-slate-800\/40,
-html.light .bg-slate-800\/30,
-html:not(.dark) .bg-slate-800\/30,
-html.light .bg-slate-800\/20,
-html:not(.dark) .bg-slate-800\/20,
-html.light .bg-slate-700,
-html:not(.dark) .bg-slate-700 {
-  background-color: #F1F5F9 !important;
-  border-color: #CBD5E1 !important;
+/* ---- Elevated surfaces → white cards ----
+   (`:not(hover:...)` guards: a hover-only class such as
+   `hover:bg-slate-800/70` contains the same substring but must NOT
+   paint a permanent background.) ---- */
+.light [class*="bg-[#11141D]"]:not([class*="hover:bg-[#11141D]"]),
+.light [class*="bg-[#0D111A]"],
+.light [class*="bg-slate-900"]:not([class*="hover:bg-slate-900"]) {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 16px -4px rgba(15, 23, 42, 0.08) !important;
 }
 
-/* Subtle indigo / cyan tinted surfaces in Light Mode */
-html.light .bg-indigo-950,
-html:not(.dark) .bg-indigo-950,
-html.light .bg-indigo-950\/40,
-html:not(.dark) .bg-indigo-950\/40,
-html.light .bg-indigo-950\/50,
-html:not(.dark) .bg-indigo-950\/50,
-html.light .bg-indigo-950\/60,
-html:not(.dark) .bg-indigo-950\/60,
-html.light .bg-indigo-950\/70,
-html:not(.dark) .bg-indigo-950\/70,
-html.light .bg-indigo-950\/80,
-html:not(.dark) .bg-indigo-950\/80,
-html.light .bg-indigo-950\/90,
-html:not(.dark) .bg-indigo-950\/90 {
+/* Locked / disabled rows keep a flat grey so they read as disabled */
+.light [class*="bg-slate-900/40"] {
+  background-color: var(--surface-secondary) !important;
+  box-shadow: none !important;
+}
+
+/* Pills & strips sitting directly on header / sidebar chrome */
+.light header [class*="bg-[#11141D]"],
+.light header [class*="bg-[#0A0C10]"],
+.light aside [class*="bg-[#0A0C10]"] {
+  background-color: var(--surface-secondary) !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+
+/* ---- Muted / secondary fills (never inputs — see form section).
+   Guarded so hover-only paints (e.g. `hover:bg-slate-800/70` on menu
+   rows) don't become permanent backgrounds. ---- */
+.light div[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]):not([class*="hover:bg-slate-700"]),
+.light div[class*="bg-slate-700"]:not([class*="hover:bg-slate-700"]):not([class*="hover:bg-slate-800"]),
+.light section[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]),
+.light button[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]):not([class*="hover:bg-slate-700"]),
+.light span[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]),
+.light [class*="bg-white/5"]:not([class*="hover:bg-white/"]),
+.light [class*="bg-white/10"]:not([class*="hover:bg-white/"]) {
+  background-color: var(--surface-tertiary) !important;
+  border-color: var(--border-strong) !important;
+}
+
+/* Faint decorative glow blobs get a touch stronger so they survive white */
+.light [class*="bg-indigo-500/5"] {
+  background-color: rgba(99, 102, 241, 0.14) !important;
+}
+
+/* ---- Tinted badge / pill washes → pastel solids with matching borders ---- */
+.light [class*="bg-indigo-500/"],
+.light [class*="bg-indigo-600/"],
+.light [class*="bg-indigo-950/"] {
   background-color: #EEF2FF !important;
   border-color: #C7D2FE !important;
 }
-
-/* HIGH-CONTRAST BADGES IN LIGHT MODE */
-html.light .bg-indigo-500\/10,
-html:not(.dark) .bg-indigo-500\/10,
-html.light .bg-indigo-500\/20,
-html:not(.dark) .bg-indigo-500\/20,
-html.light .bg-indigo-600\/20,
-html:not(.dark) .bg-indigo-600\/20 {
-  background-color: #EEF2FF !important;
-  border-color: #C7D2FE !important;
-  color: #4338CA !important;
-}
-
-html.light .bg-cyan-500\/10,
-html:not(.dark) .bg-cyan-500\/10,
-html.light .bg-cyan-500\/20,
-html:not(.dark) .bg-cyan-500\/20 {
+.light [class*="bg-cyan-500/"],
+.light [class*="bg-cyan-950/"] {
   background-color: #ECFEFF !important;
   border-color: #A5F3FC !important;
-  color: #0E7490 !important;
 }
-
-html.light .bg-emerald-500\/10,
-html:not(.dark) .bg-emerald-500\/10,
-html.light .bg-emerald-500\/20,
-html:not(.dark) .bg-emerald-500\/20 {
+.light [class*="bg-emerald-500/"],
+.light [class*="bg-emerald-950/"] {
   background-color: #ECFDF5 !important;
   border-color: #A7F3D0 !important;
-  color: #047857 !important;
 }
-
-html.light .bg-amber-500\/10,
-html:not(.dark) .bg-amber-500\/10,
-html.light .bg-amber-500\/20,
-html:not(.dark) .bg-amber-500\/20,
-html.light .bg-amber-500\/30,
-html:not(.dark) .bg-amber-500\/30 {
+.light [class*="bg-amber-500/"],
+.light [class*="bg-amber-950/"] {
   background-color: #FFFBEB !important;
   border-color: #FDE68A !important;
-  color: #92400E !important;
 }
-
-html.light .bg-rose-500\/10,
-html:not(.dark) .bg-rose-500\/10,
-html.light .bg-rose-500\/20,
-html:not(.dark) .bg-rose-500\/20,
-html.light .bg-rose-950,
-html:not(.dark) .bg-rose-950,
-html.light .bg-rose-950\/80,
-html:not(.dark) .bg-rose-950\/80 {
+.light [class*="bg-rose-500/"],
+.light [class*="bg-rose-950/"] {
   background-color: #FFF1F2 !important;
   border-color: #FECDD3 !important;
-  color: #BE123C !important;
+}
+.light [class*="bg-purple-500/"],
+.light [class*="bg-fuchsia-500/"],
+.light [class*="bg-blue-500/"],
+.light [class*="bg-blue-950/"],
+.light [class*="bg-teal-500/"],
+.light [class*="bg-orange-500/"],
+.light [class*="bg-indigo-800/"] {
+  background-color: #F5F3FF !important;
+  border-color: #DDD6FE !important;
 }
 
-/* Borders in Light Mode */
-html.light .border-slate-800,
-html:not(.dark) .border-slate-800,
-html.light .border-slate-800\/80,
-html:not(.dark) .border-slate-800\/80,
-html.light .border-slate-800\/90,
-html:not(.dark) .border-slate-800\/90,
-html.light .border-slate-700,
-html:not(.dark) .border-slate-700,
-html.light .border-slate-700\/80,
-html:not(.dark) .border-slate-700\/80,
-html.light .border-slate-700\/60,
-html:not(.dark) .border-slate-700\/60,
-html.light .border-slate-700\/50,
-html:not(.dark) .border-slate-700\/50,
-html.light .border-slate-700\/40,
-html:not(.dark) .border-slate-700\/40,
-html.light .border-slate-700\/30,
-html:not(.dark) .border-slate-700\/30 {
-  border-color: #E2E8F0 !important;
+/* ---- Light borders and dividers (incl. glass + arbitrary dark rings) ---- */
+.light [class*="border-slate-8"],
+.light [class*="border-slate-7"],
+.light [class*="border-slate-6"],
+.light [class*="border-white/10"],
+.light [class*="border-white/20"],
+.light [class*="border-[#1e293b]"],
+.light [class*="border-[#0A0C10]"],
+.light [class*="border-[#07090E]"],
+.light [class*="divide-slate-8"],
+.light [class*="divide-slate-7"],
+.light [class*="divide-white"] {
+  border-color: var(--border) !important;
 }
 
-/* HIGH-CONTRAST TYPOGRAPHY IN LIGHT MODE */
-html.light .text-white,
-html:not(.dark) .text-white {
+.light [class*="ring-slate-8"],
+.light [class*="ring-slate-7"],
+.light [class*="ring-white"] {
+  --tw-ring-color: var(--border-strong) !important;
+}
+
+/* Recharts: dark slate labels + light grid + white tooltip card */
+.light .recharts-text,
+.light .recharts-cartesian-axis-tick-value,
+.light .recharts-polar-angle-axis-tick-value {
+  fill: #475569 !important; /* slate-600 */
+}
+.light .recharts-cartesian-grid line {
+  stroke: #E2E8F0 !important;
+}
+.light .recharts-cartesian-axis-line,
+.light .recharts-polar-angle-axis-line,
+.light .recharts-polar-grid-angle-line,
+.light .recharts-polar-grid-concentric-polygon {
+  stroke: #CBD5E1 !important; /* slate-300 */
+}
+.light .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.2) !important;
+  color: #0F172A !important;
+}
+.light .recharts-tooltip-wrapper .recharts-tooltip-item {
   color: #0F172A !important;
 }
 
-html.light .text-slate-100,
-html:not(.dark) .text-slate-100,
-html.light .text-slate-200,
-html:not(.dark) .text-slate-200 {
-  color: #1E293B !important;
+/* ---- Light text scale (WCAG AA on white) ---- */
+.light [class*="text-white"],
+.light [class*="text-slate-100"],
+.light [class*="text-slate-200"] {
+  color: var(--text-primary) !important;
 }
 
-html.light .text-slate-300,
-html:not(.dark) .text-slate-300 {
-  color: #334155 !important;
+.light [class*="text-slate-300"],
+.light [class*="text-slate-400"] {
+  color: var(--text-secondary) !important;
 }
 
-html.light .text-slate-400,
-html:not(.dark) .text-slate-400 {
-  color: #475569 !important;
+.light [class*="text-slate-500"],
+.light [class*="text-slate-600"] {
+  color: var(--text-muted) !important;
 }
 
-html.light .text-slate-500,
-html:not(.dark) .text-slate-500 {
-  color: #64748B !important;
-}
-
-html.light .text-indigo-300,
-html:not(.dark) .text-indigo-300,
-html.light .text-indigo-400,
-html:not(.dark) .text-indigo-400 {
-  color: #4338CA !important;
-}
-
-html.light .text-cyan-300,
-html:not(.dark) .text-cyan-300,
-html.light .text-cyan-400,
-html:not(.dark) .text-cyan-400 {
-  color: #0E7490 !important;
-}
-
-html.light .text-emerald-300,
-html:not(.dark) .text-emerald-300,
-html.light .text-emerald-400,
-html:not(.dark) .text-emerald-400 {
-  color: #047857 !important;
-}
-
-html.light .text-amber-300,
-html:not(.dark) .text-amber-300,
-html.light .text-amber-400,
-html:not(.dark) .text-amber-400 {
-  color: #B45309 !important;
-}
-
-html.light .text-rose-300,
-html:not(.dark) .text-rose-300,
-html.light .text-rose-400,
-html:not(.dark) .text-rose-400 {
-  color: #BE123C !important;
-}
-
-/* KEEP WHITE TEXT ON PRIMARY/GRADIENT BUTTONS IN LIGHT MODE */
-html.light .bg-indigo-600,
-html:not(.dark) .bg-indigo-600,
-html.light .bg-indigo-500,
-html:not(.dark) .bg-indigo-500,
-html.light .bg-gradient-to-r,
-html:not(.dark) .bg-gradient-to-r,
-html.light .bg-gradient-to-tr,
-html:not(.dark) .bg-gradient-to-tr,
-html.light .bg-gradient-to-br,
-html:not(.dark) .bg-gradient-to-br {
-  color: #FFFFFF !important;
-}
-html.light .bg-indigo-600 .text-white,
-html:not(.dark) .bg-indigo-600 .text-white,
-html.light .bg-gradient-to-r .text-white,
-html:not(.dark) .bg-gradient-to-r .text-white,
-html.light .bg-gradient-to-r span,
-html:not(.dark) .bg-gradient-to-r span {
-  color: #FFFFFF !important;
-}
-
-/* Form inputs & selects in Light Mode */
-html.light input,
-html:not(.dark) input,
-html.light select,
-html:not(.dark) select,
-html.light textarea,
-html:not(.dark) textarea {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border-color: #CBD5E1 !important;
-}
-html.light input::placeholder,
-html:not(.dark) input::placeholder,
-html.light textarea::placeholder,
-html:not(.dark) textarea::placeholder {
+/* Line-through completed tasks stay visibly muted, never washed out */
+.light [class*="line-through"] {
   color: #94A3B8 !important;
 }
 
-/* Navbar & Sidebar in Light Mode */
-html.light header,
-html:not(.dark) header {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  border-bottom-color: #E2E8F0 !important;
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.05) !important;
+/* Protect Developer Profile Hero Text (hero intentionally stays dark) */
+.light .profile-hero .text-white,
+.light .profile-hero .text-slate-100 {
+  color: #ffffff !important;
 }
 
-html.light aside,
-html:not(.dark) aside {
-  background-color: #FFFFFF !important;
-  border-right-color: #E2E8F0 !important;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03) !important;
+.light .profile-hero .text-slate-200,
+.light .profile-hero .text-slate-300 {
+  color: #cbd5e1 !important;
 }
 
-html.light #mobile-bottom-nav,
-html:not(.dark) #mobile-bottom-nav {
-  background-color: rgba(255, 255, 255, 0.97) !important;
-  border-top-color: #E2E8F0 !important;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05) !important;
+.light .profile-hero .text-slate-400 {
+  color: #94a3b8 !important;
 }
 
-/* Light mode gradient cards */
-html.light .bento-gradient-hero,
-html:not(.dark) .bento-gradient-hero {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(6, 182, 212, 0.05) 100%) !important;
-  border-color: rgba(99, 102, 241, 0.25) !important;
+.light .profile-hero .text-slate-500 {
+  color: #64748b !important;
 }
 
-html.light .bento-gradient-mentor,
-html:not(.dark) .bento-gradient-mentor {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0.98) 100%) !important;
-  border-color: rgba(99, 102, 241, 0.2) !important;
+/* ---- Accent text → deep 700 shades (pastel-on-white was unreadable) ---- */
+.light .text-cyan-400, .light .text-cyan-300, .light .text-cyan-200, .light .text-cyan-500 {
+  color: #0369A1 !important; /* sky-700 */
+}
+.light .text-indigo-400, .light .text-indigo-300, .light .text-indigo-200, .light .text-indigo-500 {
+  color: #4338CA !important; /* indigo-700 */
+}
+.light .text-emerald-400, .light .text-emerald-300, .light .text-emerald-200, .light .text-emerald-500 {
+  color: #047857 !important; /* emerald-700 */
+}
+.light .text-amber-400, .light .text-amber-300, .light .text-amber-200, .light .text-amber-500 {
+  color: #B45309 !important; /* amber-700 (amber-600 fails on white) */
+}
+.light .text-rose-400, .light .text-rose-300, .light .text-rose-200, .light .text-rose-500 {
+  color: #BE123C !important; /* rose-700 */
+}
+.light .text-blue-400, .light .text-blue-300, .light .text-blue-200, .light .text-blue-500 {
+  color: #1D4ED8 !important; /* blue-700 */
+}
+.light .text-purple-400, .light .text-purple-300, .light .text-purple-200, .light .text-purple-500,
+.light .text-fuchsia-400, .light .text-fuchsia-300,
+.light .text-violet-400, .light .text-violet-300,
+.light .text-teal-400, .light .text-teal-300,
+.light .text-orange-400, .light .text-orange-300,
+.light .text-lime-400, .light .text-green-400 {
+  color: #6D28D9 !important; /* violet-700 family fallback */
+}
+.light .text-teal-400, .light .text-teal-300 {
+  color: #0F766E !important; /* teal-700 */
+}
+.light .text-orange-400, .light .text-orange-300 {
+  color: #C2410C !important; /* orange-700 */
+}
+.light .text-green-400, .light .text-green-300,
+.light .text-lime-400, .light .text-lime-300 {
+  color: #15803D !important; /* green-700 */
 }
 
-/* Light mode scrollbars */
-html.light ::-webkit-scrollbar-track,
-html:not(.dark) ::-webkit-scrollbar-track {
-  background: #F1F5F9;
-}
-html.light ::-webkit-scrollbar-thumb,
-html:not(.dark) ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-}
-html.light ::-webkit-scrollbar-thumb:hover,
-html:not(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+/* Matching icon fills / strokes so lucide icons keep parity with text */
+.light [class*="fill-amber-"] { fill: #B45309 !important; }
+.light [class*="fill-cyan-"] { fill: #0369A1 !important; }
+.light [class*="fill-indigo-"] { fill: #4338CA !important; }
+.light [class*="fill-emerald-"] { fill: #047857 !important; }
+.light [class*="fill-rose-"] { fill: #BE123C !important; }
+
+/* Tiny status dots (e.g. ping badge) need solid deep fills on white */
+.light span[class*="bg-cyan-400"],
+.light span[class*="bg-emerald-400"] {
+  background-color: #0284C7 !important;
 }
 
-/* Light mode 3D Holographic Orbit visualizer */
-html.light .holo-shell,
-html:not(.dark) .holo-shell {
-  background:
-    radial-gradient(120% 80% at 50% 108%, color-mix(in oklab, var(--accent) 15%, transparent), transparent 62%),
-    radial-gradient(90% 60% at 50% -10%, color-mix(in oklab, var(--accent-2) 10%, transparent), transparent 60%),
-    linear-gradient(180deg, #F8FAFC 0%, #EEF2F6 58%, #F8FAFC 100%) !important;
-  border-color: #CBD5E1 !important;
-  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.08) !important;
+/* ---- Solid saturated CTAs keep white text (only solid stops, never /opacity tints).
+   The `:not(.../)` guard is the key fix: translucent tint badges such as
+   `bg-indigo-500/10 text-indigo-400` must NOT get white text (white-on-tint
+   was the main "hidden content" bug). ---- */
+:is(
+  .light [class*="bg-indigo-600"]:not([class*="bg-indigo-600/"]),
+  .light [class*="bg-indigo-500"]:not([class*="bg-indigo-500/"]):not([class*="bg-clip-text"]),
+  .light [class*="bg-blue-600"]:not([class*="bg-blue-600/"]),
+  .light [class*="bg-cyan-600"]:not([class*="bg-cyan-600/"]),
+  .light [class*="bg-emerald-600"]:not([class*="bg-emerald-600/"]),
+  .light [class*="from-indigo-600"]:not([class*="from-indigo-600/"]):not([class*="bg-clip-text"]),
+  .light [class*="from-indigo-500"]:not([class*="from-indigo-500/"]):not([class*="bg-clip-text"]),
+  .light [class*="from-blue-600"]:not([class*="from-blue-600/"]):not([class*="bg-clip-text"]),
+  .light [class*="from-cyan-500"]:not([class*="from-cyan-500/"]):not([class*="bg-clip-text"]),
+  .light [class*="from-emerald-500"]:not([class*="from-emerald-500/"]):not([class*="bg-clip-text"])
+) {
+  color: #ffffff !important;
 }
 
-html.light .holo-panel,
-html:not(.dark) .holo-panel {
-  background:
-    linear-gradient(160deg, color-mix(in oklab, var(--accent) 6%, transparent), transparent 55%),
-    rgba(255, 255, 255, 0.94) !important;
-  border: 1px solid color-mix(in oklab, var(--accent) 30%, #CBD5E1) !important;
-  backdrop-filter: blur(12px) !important;
-  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08) !important;
+/* Inner copy inside a solid CTA stays white even though global rules darken text */
+:is(
+  .light [class*="bg-indigo-600"]:not([class*="bg-indigo-600/"]),
+  .light [class*="from-indigo-600"]:not([class*="from-indigo-600/"]):not([class*="bg-clip-text"]),
+  .light [class*="from-indigo-500"]:not([class*="from-indigo-500/"]):not([class*="bg-clip-text"])
+) [class*="text-slate-"],
+:is(
+  .light [class*="bg-indigo-600"]:not([class*="bg-indigo-600/"]),
+  .light [class*="from-indigo-600"]:not([class*="from-indigo-600/"]):not([class*="bg-clip-text"]),
+  .light [class*="from-indigo-500"]:not([class*="from-indigo-500/"]):not([class*="bg-clip-text"])
+) [class*="text-white"] {
+  color: #ffffff !important;
 }
 
-html.light .holo-chip,
-html:not(.dark) .holo-chip {
-  background: #FFFFFF !important;
-  border-color: color-mix(in oklab, var(--accent) 35%, #CBD5E1) !important;
-  color: #0F172A !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-html.light .holo-grid,
-html:not(.dark) .holo-grid {
-  background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--accent) 15%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--accent) 15%, transparent) 1px, transparent 1px) !important;
-}
-
-/* Light mode floating AI mentor */
-html.light #panel-ai-mentor-drawer,
-html:not(.dark) #panel-ai-mentor-drawer {
-  background-color: rgba(255, 255, 255, 0.98) !important;
+/* ---- Dark gradient hero / summary cards become light gradients.
+   Without this, cards like `from-slate-900 via-indigo-950/40 to-slate-900`
+   stayed near-black while global text rules turned their copy dark
+   (dark-on-dark = hidden). Now card + copy flip together. ---- */
+.light [class*="from-slate-900"],
+.light [class*="to-slate-900"],
+.light [class*="to-slate-950"],
+.light [class*="via-indigo-950"],
+.light [class*="from-indigo-950"],
+.light [class*="from-indigo-900"],
+.light [class*="via-indigo-900"],
+.light [class*="to-cyan-900"],
+.light [class*="to-indigo-900"],
+.light [class*="from-slate-950"],
+.light [class*="bg-indigo-950/70"],
+.light div[class*="from-amber-950/"],
+.light div[class*="from-cyan-950/"],
+.light div[class*="from-emerald-950/"],
+.light div[class*="from-fuchsia-950/"],
+.light div[class*="from-blue-950/"] {
+  background-image: linear-gradient(135deg, #E0E7FF 0%, #F8FAFC 55%, #E0F2FE 100%) !important;
+  background-color: #F8FAFC !important;
   border-color: #C7D2FE !important;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+  box-shadow: 0 10px 30px -14px rgba(79, 70, 229, 0.25) !important;
+}
+
+/* Soft wash heroes that already use translucent saturated stops */
+.light [class*="from-indigo-600/"],
+.light [class*="via-indigo-900/"] {
+  background-image: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 60%, #ECFEFF 100%) !important;
+  background-color: #F8FAFC !important;
+  border-color: #C7D2FE !important;
+}
+
+/* ---- Gradient headline text → deep readable gradient on light.
+   Pastel `from-cyan-400 via-indigo-300` and `from-white to-slate-300`
+   gradients are invisible on white; remap the rendered gradient. ---- */
+.light [class*="bg-clip-text"] {
+  background-image: linear-gradient(90deg, #4338CA 0%, #0369A1 52%, #047857 100%) !important;
+}
+
+/* Progress-bar fills keep their saturated gradient + remain visible */
+.light div[class*="from-indigo-500"][class*="to-cyan-400"][class*="rounded-full"],
+.light div[class*="from-emerald-500"][class*="to-cyan-400"][class*="rounded-full"],
+.light div[class*="from-cyan-500"][class*="to-blue-500"][class*="rounded-full"],
+.light div[class*="bg-indigo-500"][class*="rounded-full"] {
+  background-image: linear-gradient(90deg, #6366F1, #06B6D4) !important;
+  background-color: #6366F1 !important;
+}
+
+/* Progress track beds */
+.light div[class*="bg-slate-700"][class*="rounded-full"] {
+  background-color: #E2E8F0 !important;
+  border-color: transparent !important;
+}
+
+/* Completed Milestone (Projects Page) */
+.light .completed-milestone {
+  background-color: #ECFDF5 !important;
+  background-image: none !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
+}
+
+.light .completed-milestone p {
+  color: #065F46 !important;
+}
+
+.light .completed-milestone span {
+  color: #047857 !important;
+}
+
+/* ---- Hover states (dark hovers would flash near-black on white) ---- */
+.light .hover\:bg-slate-800:hover,
+.light .hover\:bg-slate-700:hover,
+.light .hover\:bg-\[\#11141D\]:hover,
+.light [class*="hover:bg-slate-800"]:hover {
+  background-color: var(--surface-tertiary) !important;
+}
+.light [class*="hover:bg-slate-700"]:hover {
+  background-color: #CBD5E1 !important;
+}
+.light [class*="hover:bg-slate-900"]:hover {
+  background-color: var(--surface-secondary) !important;
+}
+.light [class*="hover:text-indigo-200"]:hover,
+.light [class*="hover:text-indigo-300"]:hover {
+  color: #4338CA !important;
+}
+.light [class*="hover:text-cyan-300"]:hover {
+  color: #0369A1 !important;
+}
+.light [class*="hover:bg-indigo-500/10"]:hover,
+.light [class*="hover:bg-indigo-500/20"]:hover,
+.light [class*="hover:bg-indigo-600/30"]:hover,
+.light [class*="hover:bg-indigo-500/30"]:hover {
+  background-color: #E0E7FF !important;
+}
+
+.light .hover\:text-white:hover,
+.light [class*="hover:text-white"]:hover {
+  color: var(--text-primary) !important;
+}
+
+.light .hover\:text-slate-200:hover,
+.light [class*="hover:text-slate-200"]:hover,
+.light [class*="group-hover:text-slate-300"]:hover {
+  color: var(--text-primary) !important;
+}
+.light [class*="group-hover:text-indigo-300"]:hover {
+  color: #4338CA !important;
+}
+
+.light .hover\:border-slate-700:hover,
+.light .hover\:border-slate-600:hover,
+.light [class*="hover:border-slate-700"]:hover,
+.light [class*="hover:border-slate-600"]:hover {
+  border-color: var(--border-strong) !important;
+}
+.light [class*="hover:border-indigo-500"]:hover,
+.light [class*="hover:border-indigo-400"]:hover {
+  border-color: #A5B4FC !important;
+}
+
+/* ---- Modal / drawer dim layers: softer slate veil on light ---- */
+.light [class*="bg-black/60"],
+.light [class*="bg-black/70"] {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* ---- Toast notifications → white cards with dark copy ---- */
+.light [class*="bg-rose-950/"],
+.light [class*="bg-amber-950/"],
+.light [class*="bg-indigo-950/90"],
+.light [class*="bg-slate-900/95"][class*="shadow-emerald"] {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.25) !important;
+}
+.light [class*="bg-rose-950/"] [class*="text-rose-"],
+.light [class*="bg-rose-950/"] span:first-child {
+  color: #9F1239 !important;
+}
+.light [class*="bg-amber-950/"] [class*="text-amber-"],
+.light [class*="bg-amber-950/"] span:first-child {
+  color: #92400E !important;
+}
+.light [class*="bg-indigo-950/90"] [class*="text-cyan-"],
+.light [class*="bg-indigo-950/90"] span:first-child {
+  color: #0C4A6E !important;
+}
+.light [class*="shadow-emerald-950/"] span:first-child {
+  color: #065F46 !important;
+}
+
+/* ---- Form controls: true white fields, dark copy, visible placeholder ---- */
+.light input:not([type="checkbox"]):not([type="radio"]),
+.light textarea,
+.light select {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+.light input:focus:not([type="checkbox"]):not([type="radio"]),
+.light textarea:focus,
+.light select:focus {
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+  outline: none !important;
+}
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+.light [class*="placeholder-slate-"]::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+.light input[type="date"]::-webkit-calendar-picker-indicator,
+.light input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+}
+.light label[class*="text-slate-"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Bento Card in light theme */
+.light .bento-card {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+}
+
+.light .bento-card-hover:hover {
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 12px 32px -12px rgba(99, 102, 241, 0.28);
+}
+
+.light .bento-gradient-hero {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, #F8FAFC 55%, rgba(224, 242, 254, 0.7) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+}
+
+.light .bento-gradient-mentor {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, #ffffff 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Dropdowns / popovers / floating panels get real elevation on white */
+.light header [class*="absolute"][class*="bg-"],
+.light aside + * [class*="absolute"][class*="bg-"],
+.light [class*="animate-fade-in"][class*="bg-"] {
+  box-shadow: 0 20px 48px -16px rgba(15, 23, 42, 0.28) !important;
+}
+
+/* Neon glows that look muddy on white are softened, not removed */
+.light [class*="shadow-indigo-500/30"],
+.light [class*="shadow-indigo-500/40"] {
+  --tw-shadow-color: rgba(99, 102, 241, 0.25) !important;
+}
+.light [class*="shadow-indigo-950/50"] {
+  --tw-shadow-color: rgba(99, 102, 241, 0.18) !important;
+}
+
+/* Visible keyboard focus on light */
+.light :focus-visible {
+  outline: 2px solid #6366F1 !important;
+  outline-offset: 2px;
+}
+
+/* Light Holographic & 3D Styling */
+.light {
+  --accent: #0284c7;
+  --accent-2: #6366f1;
+  --shell: #f8fafc;
+  --shell-2: #e0f2fe;
+  --hud: #0369a1;
+  --hud-dim: color-mix(in oklab, var(--accent) 30%, transparent);
+}
+
+.light .holo-shell {
+  background:
+    radial-gradient(120% 80% at 50% 108%, color-mix(in oklab, var(--accent) 15%, transparent), transparent 65%),
+    radial-gradient(90% 60% at 50% -10%, color-mix(in oklab, var(--accent-2) 12%, transparent), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #e0f2fe 58%, #f8fafc 100%) !important;
+}
+
+.light .holo-panel {
+  background:
+    linear-gradient(160deg, color-mix(in oklab, var(--accent) 8%, transparent), transparent 55%),
+    rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 15px 40px -20px rgba(2, 132, 199, 0.25) !important;
+}
+
+.light .holo-chip {
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent) !important;
+  background: color-mix(in oklab, var(--accent) 10%, #ffffff) !important;
+  color: var(--hud) !important;
+}
+
+/* Light Scrollbar */
+.light ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
 }

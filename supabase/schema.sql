@@ -2,6 +2,14 @@
 -- CareerPath AI Mentor - Supabase PostgreSQL Schema
 -- Run this in your Supabase SQL Editor (Dashboard > SQL Editor > New Query)
 -- ==============================================================================
+-- MIGRATION v2 (Non-destructive): Run below ALTER TABLE block in SQL Editor
+-- to add new onboarding + academic calendar fields to existing profiles table:
+--
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_status TEXT DEFAULT 'assessment_not_started';
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS course_start_date DATE;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS total_semesters INTEGER DEFAULT 8;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS course_duration_months INTEGER DEFAULT 6;
+-- ==============================================================================
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -30,6 +38,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   available_days_per_week INTEGER DEFAULT 6,
   skill_level TEXT DEFAULT 'Intermediate',
   riasec_result JSONB,
+  -- Onboarding state machine
+  onboarding_status TEXT DEFAULT 'assessment_not_started',
+  -- Academic calendar (for dynamic semester calculation)
+  course_start_date DATE,
+  total_semesters INTEGER DEFAULT 8,
+  course_duration_months INTEGER DEFAULT 6,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

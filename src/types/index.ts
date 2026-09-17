@@ -1,25 +1,62 @@
+export type OnboardingStatus =
+  | 'assessment_not_started'
+  | 'assessment_in_progress'
+  | 'assessment_completed'
+  | 'career_path_selected'
+  | 'roadmap_initialized';
+
 export type RIASECScore = {
-  R: number; // Realistic
-  I: number; // Investigative
-  A: number; // Artistic
-  S: number; // Social
-  E: number; // Enterprising
-  C: number; // Conventional
+  R: number; // Realistic (0-100%)
+  I: number; // Investigative (0-100%)
+  A: number; // Artistic (0-100%)
+  S: number; // Social (0-100%)
+  E: number; // Enterprising (0-100%)
+  C: number; // Conventional (0-100%)
 };
+
+export type RIASECCategoryKey = 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
+
+export type RIASECInterpretationLevel =
+  | 'Lower preference'
+  | 'Moderate preference'
+  | 'Strong preference'
+  | 'Very strong preference';
+
+export interface RIASECCategoryDetail {
+  code: RIASECCategoryKey;
+  name: string;
+  fullName: string;
+  icon: string;
+  rawScore: number;
+  score: number;
+  level: RIASECInterpretationLevel;
+  badgeColor: string;
+  barColor: string;
+  description: string;
+  summary: string;
+  workActivities: string[];
+  preferredEnvironments: string[];
+  sampleCareers: string[];
+}
+
+export interface RIASECQuestionOption {
+  label: string;
+  emoji?: string;
+  points: number; // 1 to 5
+  description?: string;
+  text?: string;
+  type?: RIASECCategoryKey;
+}
 
 export interface RIASECQuestion {
   id: number;
   question: string;
-  scenario: string;
-  category?: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
-  type?: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
-  options: {
-    label?: string;
-    description?: string;
-    text?: string;
-    type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
-    points: number;
-  }[];
+  prompt?: string;
+  scenario?: string;
+  category: RIASECCategoryKey;
+  categoryIndex?: number;
+  type?: RIASECCategoryKey;
+  options?: RIASECQuestionOption[];
 }
 
 export interface CareerRecommendation {
@@ -32,18 +69,33 @@ export interface CareerRecommendation {
   demandGrowth: string;
   averageSalary: string;
   keySkills: string[];
+  whyMatches?: string[];
+  typicalWorkActivities?: string[];
+  recommendedLearningPath?: string[];
+  riasecWeights?: RIASECScore;
+  education?: string;
+  difficulty?: string;
 }
 
 export interface PersonalityResult {
+  userId?: string;
+  assessmentId?: string;
   scores: RIASECScore;
-  dominantCode: string; // e.g. "I-E-S"
+  rawScores?: RIASECScore;
+  dominantCode: string; // e.g. "ICR"
+  primaryInterest: string; // e.g. "Investigative"
+  secondaryInterest: string; // e.g. "Conventional"
+  tertiaryInterest: string; // e.g. "Realistic"
   personalityTitle: string;
   description: string;
   strengths: string[];
   workStyle: string;
   recommendedDomain: string;
   recommendedField: string;
+  categoryDetails?: RIASECCategoryDetail[];
   recommendations: CareerRecommendation[];
+  responses?: Record<string | number, number>;
+  completedAt?: string;
 }
 
 export interface CareerPath {
@@ -138,6 +190,7 @@ export interface DailyTask {
   status: 'pending' | 'in_progress' | 'completed' | 'skipped';
   skillTag?: string;
   xpReward: number;
+  updatedAt?: string;
 }
 
 export interface ProjectMilestone {
@@ -219,6 +272,7 @@ export interface InternshipItem {
   description: string;
   matchScore: number;
   status?: 'applied' | 'saved' | 'none';
+  externalUrl?: string;
 }
 
 export interface JobListing {
@@ -240,6 +294,7 @@ export interface JobListing {
   requirements?: string[];
   postedDaysAgo?: number;
   status?: 'applied' | 'saved' | 'interviewing' | 'none';
+  externalUrl?: string;
 }
 
 export interface ResumeData {
@@ -288,6 +343,7 @@ export interface ResumeData {
   }[];
   achievements?: string[];
   templateId?: 'modern-tech' | 'clean-minimal' | 'executive-pro';
+  atsScore?: number;
 }
 
 export interface DeveloperProfileData {
@@ -353,6 +409,7 @@ export interface UserProfile {
   id: string;
   fullName: string;
   email: string;
+  registeredAt?: string;
   educationLevel: string;
   currentYear: string;
   country: string;
@@ -361,10 +418,14 @@ export interface UserProfile {
   careerId: string;
   careerTitle: string;
   currentStage: number;
+  currentDay?: number;
   overallProgress: number;
   totalHoursLearned: number;
   currentStreakDays: number;
   xpPoints: number;
+  // Daily-login engagement (streak + stage are earned by showing up)
+  lastLoginDate?: string;      // local 'YYYY-MM-DD' of the last counted login
+  totalLoginDays?: number;     // distinct days the student has logged in
   // Semester settings
   semesterName: string;
   semesterStartDate: string;
@@ -373,6 +434,12 @@ export interface UserProfile {
   availableDaysPerWeek: number;
   skillLevel: 'Beginner' | 'Intermediate' | 'Advanced';
   riasecResult?: PersonalityResult;
+  // Onboarding state machine
+  onboardingStatus?: OnboardingStatus;
+  // Academic calendar for dynamic semester calculation
+  courseStartDate?: string;        // ISO date string: 'YYYY-MM-DD'
+  totalSemesters?: number;         // e.g. 8 (for 4-year course)
+  courseDurationMonths?: number;   // e.g. 6 (6 months per semester)
   notifications: {
     id: string;
     title: string;
