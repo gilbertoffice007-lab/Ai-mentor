@@ -54,6 +54,14 @@ const ONBOARDING_ROUTES = [
   '/onboarding/setup',
 ];
 
+// Auth entry points — all render the same Auth page (login/register tabs).
+// /login and /register are aliases of /auth so deep links and refreshes work.
+const AUTH_ROUTES = [
+  '/auth',
+  '/login',
+  '/register',
+];
+
 const AppContent: React.FC = () => {
   const { user, isLoading, toast, hideToast, showToast } = useAuth();
 
@@ -117,8 +125,7 @@ const AppContent: React.FC = () => {
           if (currentRoute !== '/onboarding/setup') {
             safeSetRoute('/onboarding/setup', true);
           }
-        } else if (currentRoute === '/auth' || currentRoute === '/') {
-          safeSetRoute('/dashboard', true);
+        } else if (AUTH_ROUTES.includes(currentRoute) || currentRoute === '/') {          safeSetRoute('/dashboard', true);
         } else if (PROTECTED_ROUTES.includes(currentRoute)) {
           const { hasAccess, requiredStage } = checkRouteAccess(currentRoute, user.currentStage);
           if (!hasAccess) {
@@ -135,7 +142,7 @@ const AppContent: React.FC = () => {
   // Without this, browser Back walks into stale onboarding pages whose
   // guards instantly push forward again — an infinite back-button trap
   // (e.g. Back onto /personality-test after finishing the assessment).
-  const REPLACE_TARGETS = ['/auth', ...ONBOARDING_ROUTES];
+  const REPLACE_TARGETS = [...AUTH_ROUTES, ...ONBOARDING_ROUTES];
 
   const handleNavigate = (route: string) => {
     const useReplace = REPLACE_TARGETS.includes(route);
@@ -196,6 +203,8 @@ const AppContent: React.FC = () => {
   const isPublicFlow = [
     '/',
     '/auth',
+    '/login',
+    '/register',
     '/explore',
     '/personality-test',
     '/assignment',
@@ -211,7 +220,11 @@ const AppContent: React.FC = () => {
       case '/explore':
         return <ExploreDomains onNavigate={handleNavigate} onSelectCareer={() => handleNavigate('/roadmap')} />;
       case '/auth':
-        return <Auth onNavigate={handleNavigate} />;
+        return <Auth key="auth" onNavigate={handleNavigate} />;
+      case '/login':
+        return <Auth key="login" initialMode="login" onNavigate={handleNavigate} />;
+      case '/register':
+        return <Auth key="register" initialMode="register" onNavigate={handleNavigate} />;
       case '/personality-test':
       case '/assignment':
       case '/assessment':
@@ -297,12 +310,12 @@ const AppContent: React.FC = () => {
 
       {/* Omnipresent AI Floating Mentor Widget */}
       {!isPublicFlow && user && (
-        <FloatingMentorWidget onNavigate={handleNavigate} />
+        <FloatingMentorWidget currentRoute={currentRoute} onNavigate={handleNavigate} />
       )}
 
       {/* Global Toast Notification */}
       {toast && (
-        <div className="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50 animate-bounce">
+        <div className="fixed bottom-20 lg:bottom-6 right-4 left-4 sm:left-auto sm:right-6 z-50 animate-bounce">
           <div
             className={`px-4 sm:px-5 py-3 rounded-2xl text-xs font-semibold shadow-2xl flex items-center gap-3 border backdrop-blur-xl ${
               toast.type === 'error'

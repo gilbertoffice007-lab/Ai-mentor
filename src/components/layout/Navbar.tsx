@@ -42,9 +42,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-30 w-full bg-[#0A0C10]/95 backdrop-blur-xl border-b border-slate-800">
-      <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <div className="w-full px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
         {/* Left: Brand Logo in Left Corner & Mobile Sidebar Trigger */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           {!isPublic && onToggleSidebar && (
             <button
               id="btn-toggle-sidebar"
@@ -71,17 +71,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div
             id="brand-logo-button"
             onClick={() => onNavigate(user ? '/dashboard' : '/')}
-            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group select-none"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none min-w-0"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform font-bold shrink-0">
               <Compass className="w-5 h-5 text-white" />
             </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight text-white leading-none">
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <span className="font-extrabold text-sm sm:text-lg tracking-tight text-white leading-none truncate">
                   CareerPath
                 </span>
-                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[9px] sm:text-[10px] font-bold uppercase rounded border border-indigo-500/20">
+                <span className="hidden sm:inline-block px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[9px] sm:text-[10px] font-bold uppercase rounded border border-indigo-500/20 shrink-0">
                   AI Active
                 </span>
               </div>
@@ -131,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
 
         {/* Right Action buttons */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* 3D Holo Explore shortcut - Shown ONLY in public/start of app */}
           {isPublic && (
             <button
@@ -164,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div
                 id="user-streak-pill"
                 onClick={() => onNavigate('/analytics')}
-                className="cursor-pointer flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#11141D] border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/10 transition-all"
+                className="cursor-pointer flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-[#11141D] border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/10 transition-all"
                 title={`${user.currentStreakDays} day study streak!`}
               >
                 <Flame className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />

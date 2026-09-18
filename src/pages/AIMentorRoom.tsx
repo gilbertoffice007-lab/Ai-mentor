@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { MentorMessage } from '../types';
+import { Markdown } from '../components/common/Markdown';
 import {
   Bot,
   Sparkles,
@@ -243,7 +244,9 @@ How would you like to level up today?`,
                       : 'bg-slate-800/90 text-slate-200 border border-slate-700/80 rounded-tl-none shadow-md'
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{msg.text}</div>
+                  <div className="whitespace-pre-wrap">
+                    {msg.sender === 'ai' ? <Markdown text={msg.text} /> : msg.text}
+                  </div>
                   <span className={`text-[10px] mt-2 block font-medium ${msg.sender === 'user' ? 'text-indigo-200' : 'text-slate-500'}`}>
                     {msg.timestamp}
                   </span>

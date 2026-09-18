@@ -17,12 +17,14 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { MentorMessage } from '../../types';
+import { Markdown } from '../common/Markdown';
 
 interface FloatingMentorWidgetProps {
   onNavigate?: (route: string) => void;
+  currentRoute?: string;
 }
 
-export const FloatingMentorWidget: React.FC<FloatingMentorWidgetProps> = ({ onNavigate }) => {
+export const FloatingMentorWidget: React.FC<FloatingMentorWidgetProps> = ({ onNavigate, currentRoute }) => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -95,6 +97,12 @@ How can I accelerate your learning, review your code, or plan your next mileston
       setIsLoading(false);
     }
   };
+
+  // Redundant inside the full Mentor Room — hide the floating trigger there
+  // so it never covers the room's own chat input on small screens.
+  if (currentRoute === '/mentor') {
+    return null;
+  }
 
   return (
     <>
@@ -200,7 +208,9 @@ How can I accelerate your learning, review your code, or plan your next mileston
                       : 'bg-slate-800/90 text-slate-200 border border-slate-700/60 rounded-tl-none shadow-sm'
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{msg.text}</div>
+                  <div className="whitespace-pre-wrap break-words">
+                    {msg.sender === 'ai' ? <Markdown text={msg.text} /> : msg.text}
+                  </div>
                   <div
                     className={`text-[9px] sm:text-[10px] mt-1.5 font-medium ${
                       msg.sender === 'user' ? 'text-indigo-200' : 'text-slate-500'

@@ -32,14 +32,20 @@ export const PlacementPrep: React.FC<PlacementPrepProps> = ({ onNavigate }) => {
   const [testResult, setTestResult] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'coding' | 'behavioral' | 'aptitude'>('coding');
 
+  // Code template fallback — data rows use `starterCode`, older rows `codeTemplate`
+  const codeFor = (q: PlacementQuestion) =>
+    q.starterCode || q.codeTemplate || '// Write your solution here\n';
+
   useEffect(() => {
     const loadQuestions = async () => {
       try {
         const data = await api.getPlacementQuestions();
         setQuestions(data);
-        if (data.length > 0) {
-          setSelectedQuestion(data[0]);
-          setCode(data[0].codeTemplate);
+        // Default to the first runnable coding question, not an aptitude one
+        const firstCoding = data.find((q) => q.starterCode || q.codeTemplate || q.category === 'DSA') || data[0];
+        if (firstCoding) {
+          setSelectedQuestion(firstCoding);
+          setCode(codeFor(firstCoding));
         }
       } catch (e) {
         console.error(e);
@@ -50,7 +56,7 @@ export const PlacementPrep: React.FC<PlacementPrepProps> = ({ onNavigate }) => {
 
   const handleSelectQuestion = (q: PlacementQuestion) => {
     setSelectedQuestion(q);
-    setCode(q.codeTemplate);
+    setCode(codeFor(q));
     setTestResult(null);
   };
 
@@ -116,10 +122,12 @@ export const PlacementPrep: React.FC<PlacementPrepProps> = ({ onNavigate }) => {
       {/* Main Coding Arena Layout */}
       {activeTab === 'coding' && (
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Question List Sidebar (4 cols) */}
+          {/* Question List Sidebar (4 cols) — coding questions only */}
           <div className="lg:col-span-4 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">Curated DSA Challenges</h3>
-            {questions.map((q) => {
+            {questions
+              .filter((q) => q.category === 'DSA' || q.starterCode || q.codeTemplate)
+              .map((q) => {
               const isSelected = selectedQuestion?.id === q.id;
               return (
                 <div
@@ -145,7 +153,7 @@ export const PlacementPrep: React.FC<PlacementPrepProps> = ({ onNavigate }) => {
                   <h4 className="text-sm font-bold text-white mt-1">{q.title}</h4>
 
                   <div className="mt-2.5 flex flex-wrap gap-1">
-                    {q.companies.map((comp, idx) => (
+                    {(q.companies || []).map((comp, idx) => (
                       <span key={idx} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
                         {comp}
                       </span>
@@ -165,7 +173,7 @@ export const PlacementPrep: React.FC<PlacementPrepProps> = ({ onNavigate }) => {
                   <h2 className="text-xl font-bold text-white">{selectedQuestion.title}</h2>
                   <span className="text-xs text-slate-400">Target Time: &lt; 25 mins</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{selectedQuestion.description}</p>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{selectedQuestion.description || selectedQuestion.question}</p>
               </div>
 
               {/* Code Editor Area */}
@@ -176,7 +184,7 @@ export const PlacementPrep: React.FC<PlacementPrepProps> = ({ onNavigate }) => {
                     <span>TypeScript / JavaScript Runtime</span>
                   </div>
                   <button
-                    onClick={() => setCode(selectedQuestion.codeTemplate)}
+                    onClick={() => setCode(codeFor(selectedQuestion))}
                     className="text-slate-400 hover:text-slate-200 flex items-center gap-1 text-[11px]"
                   >
                     <RotateCcw className="w-3 h-3" />
