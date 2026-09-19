@@ -367,12 +367,14 @@
 }
 
 /* ---- Elevated surfaces → white cards ----
-   (`:not(hover:...)` guards: a hover-only class such as
-   `hover:bg-slate-800/70` contains the same substring but must NOT
-   paint a permanent background.) ---- */
+   NOTE: no :not(hover:...) guard here — every `hover:bg-slate-900/*`
+   element in the app also carries a base dark fill, so guarding would
+   wrongly leave dark cards (Landing domains, Placement/Project rows)
+   unreadable in light mode. Hover-only paints are handled by the
+   explicit :hover rules further below. ---- */
 .light [class*="bg-[#11141D]"]:not([class*="hover:bg-[#11141D]"]),
 .light [class*="bg-[#0D111A]"],
-.light [class*="bg-slate-900"]:not([class*="hover:bg-slate-900"]) {
+.light [class*="bg-slate-900"] {
   background-color: var(--surface) !important;
   border-color: var(--border) !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 16px -4px rgba(15, 23, 42, 0.08) !important;
@@ -393,16 +395,25 @@
   box-shadow: none !important;
 }
 
-/* ---- Muted / secondary fills (never inputs — see form section).
-   Guarded so hover-only paints (e.g. `hover:bg-slate-800/70` on menu
-   rows) don't become permanent backgrounds. ---- */
-.light div[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]):not([class*="hover:bg-slate-700"]),
-.light div[class*="bg-slate-700"]:not([class*="hover:bg-slate-700"]):not([class*="hover:bg-slate-800"]),
-.light section[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]),
-.light button[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]):not([class*="hover:bg-slate-700"]),
-.light span[class*="bg-slate-800"]:not([class*="hover:bg-slate-800"]),
-.light [class*="bg-white/5"]:not([class*="hover:bg-white/"]),
-.light [class*="bg-white/10"]:not([class*="hover:bg-white/"]) {
+/* ---- Muted / secondary fills — token-exact ([class~=...]) matching.
+   Why exact tokens: substring matching cannot tell `bg-slate-800` apart
+   from `hover:bg-slate-800`, so guards kept excluding REAL base fills
+   (e.g. `bg-slate-800 hover:bg-slate-700` buttons stayed dark with dark
+   text = hidden). Exact tokens match base fills regardless of hover
+   companions, and hover-only paints can never match. This enumerates
+   every base token used in the codebase. ---- */
+.light [class~="bg-slate-800"],
+.light [class~="bg-slate-800/30"],
+.light [class~="bg-slate-800/40"],
+.light [class~="bg-slate-800/50"],
+.light [class~="bg-slate-800/60"],
+.light [class~="bg-slate-800/70"],
+.light [class~="bg-slate-800/80"],
+.light [class~="bg-slate-800/90"],
+.light [class~="bg-slate-700"],
+.light [class~="bg-slate-700/60"],
+.light [class~="bg-white/5"],
+.light [class~="bg-white/10"] {
   background-color: var(--surface-tertiary) !important;
   border-color: var(--border-strong) !important;
 }
