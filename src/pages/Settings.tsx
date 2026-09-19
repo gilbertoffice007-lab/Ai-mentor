@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getCurrentSemester } from '../lib/semesterCalculator';
 import { Settings as SettingsIcon, Sparkles, Calendar, Clock, Compass, Save, Moon, Sun, Bell } from 'lucide-react';
 
 interface SettingsProps {
@@ -22,8 +23,20 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateUser(formData);
-    showToast('Semester schedule & study preferences updated! ✨');
+    // Stage access follows the semester EXACTLY (both directions): saving an
+    // earlier semester re-locks later stages back to Stage-1 defaults.
+    const sem = getCurrentSemester(
+      formData.semesterStartDate,
+      user?.totalSemesters || 8,
+      user?.courseDurationMonths || 6
+    );
+    const stage = Math.min(Math.max(1, sem.currentSemester || 1), 6);
+    await updateUser({ ...formData, currentStage: stage });
+    showToast(
+      stage <= 1
+        ? 'Semester schedule saved! Only Stage 1 (Dashboard, Roadmap, Tasks, News) is open.'
+        : `Semester schedule saved! Stages 1–${stage} unlocked in order.`
+    );
   };
 
   return (

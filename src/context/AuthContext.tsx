@@ -58,8 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const applyLoginDay = useCallback(async (
     profile: UserProfile
-  ): Promise<{ profile: UserProfile; counted: boolean; streak: number; leveledUp: boolean; stage: number }> => {
-    const quiet = { profile, counted: false, streak: profile.currentStreakDays ?? 0, leveledUp: false, stage: profile.currentStage ?? 1 };
+  ): Promise<{ profile: UserProfile; counted: boolean; streak: number; leveledUp: boolean; stageDropped: boolean; stage: number }> => {
+    const quiet = { profile, counted: false, streak: profile.currentStreakDays ?? 0, leveledUp: false, stageDropped: false, stage: profile.currentStage ?? 1 };
     try {
       if (isSupabaseConfigured()) {
         const res = await recordDailyLogin(profile.id);
@@ -74,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           counted: res.counted,
           streak: res.streak,
           leveledUp: res.leveledUp,
+          stageDropped: res.stageDropped,
           stage: res.stage,
         };
       }
@@ -98,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       counted: !alreadyCounted,
       streak: mirrored.currentStreakDays ?? 0,
       leveledUp,
+      stageDropped: false,
       stage: mirrored.currentStage ?? 1,
     };
   }, []);
@@ -167,6 +169,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (day.counted) {
                 if (day.leveledUp) {
                   showToast(`🎓 Stage ${day.stage} unlocked! Your daily logins earned it.`, 'success');
+                } else if (day.stageDropped) {
+                  showToast(`Semester ${day.stage} active: later stages are locked again. Stage 1 stays open.`, 'info');
                 } else if (day.streak > 1) {
                   showToast(`🔥 ${day.streak}-day login streak! Come back tomorrow to grow it.`, 'info');
                 }

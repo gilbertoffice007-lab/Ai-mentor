@@ -35,7 +35,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
-  const { user, completeDailyTask } = useAuth();
+  const { user, completeDailyTask, updateUser, showToast } = useAuth();
   const [analytics, setAnalytics] = useState<any>(null);
   const [dailyData, setDailyData] = useState<any>(null);
   const [stages, setStages] = useState<any[]>([]);
@@ -65,6 +65,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   }, []);
 
   const currentStageNum = user?.currentStage || 1;
+  // Late joiners (3rd/4th year) can set their real semester here —
+  // stage access follows the chosen semester.
+  const totalSems = user?.totalSemesters || 8;
+  const [editingSem, setEditingSem] = useState(false);
+  const [pickedSem, setPickedSem] = useState(1);
   // Dynamic semester calculation
   const semesterInfo = getCurrentSemester(
     user?.courseStartDate,
@@ -75,6 +80,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const greeting = getTimeGreeting();
   const circumference = 2 * Math.PI * 58;
   const strokeOffset = circumference - (circumference * progressPct) / 100;
+
+  const openSemEditor = () => {
+    setPickedSem(semesterInfo.currentSemester || user?.currentStage || 1);
+    setEditingSem(true);
+  };
+
+  const saveSemester = async () => {
+    const sem = Math.min(Math.max(1, pickedSem), totalSems);
+    // Stage follows the semester EXACTLY (both directions): picking a lower
+    // semester re-locks later stages; only Stage-1 defaults stay open.
+    const stage = Math.min(sem, 6);
+    // Back-calculate the course start so the calendar stays consistent:
+    // (sem - 1) full semesters have passed before today.
+    const monthsEach = user?.courseDurationMonths || 6;
+    const d = new Date();
+    d.setMonth(d.getMonth() - (sem - 1) * monthsEach);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    await updateUser({
+      courseStartDate: iso,
+      currentStage: stage,
+      semesterName: `Semester ${sem}`,
+      onboardingStatus: 'roadmap_initialized',
+    });
+    setEditingSem(false);
+    showToast(
+      stage <= 1
+        ? 'Semester 1 set. Only Stage 1 (Dashboard, Roadmap, Tasks, News) is open.'
+        : `Semester ${sem} set! Stages 1–${stage} unlocked in order. 🎓`,
+      'success'
+    );
+  };
 
   const currentStageInfo = stages.find(s => s.stageNumber === currentStageNum) || stages[1];
 
@@ -95,14 +131,49 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         {/* Bento Hero Box (Col 8) */}
         <div className="md:col-span-8 bg-gradient-to-br from-indigo-600/20 via-indigo-900/10 to-purple-600/5 border border-indigo-500/30 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-lg relative overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold uppercase tracking-wider">
                 Active Track
               </span>
               <span className="text-xs text-slate-400">
                 {user?.currentYear || 'Year 3, CS'} • {user?.semesterName || 'Fall 2026'}
               </span>
+              <button
+                onClick={openSemEditor}
+                className="px-2 py-0.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                title="Set your current semester (e.g. joined in 3rd year)"
+              >
+                Change semester
+              </button>
             </div>
+            {editingSem && (
+              <div className="mb-4 flex flex-wrap items-center gap-2 p-3 rounded-2xl bg-slate-900/80 border border-indigo-500/30">
+                <span className="text-xs font-semibold text-slate-300">My current semester:</span>
+                <select
+                  value={pickedSem}
+                  onChange={(e) => setPickedSem(Number(e.target.value))}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                >
+                  {Array.from({ length: totalSems }, (_, i) => i + 1).map((n) => (
+                    <option key={n} value={n}>
+                      Semester {n}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={saveSemester}
+                  className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditingSem(false)}
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
             
             <h2 className="text-2xl sm:text-3xl font-light text-slate-100">
               {greeting}, <span className="font-bold text-white">{user?.fullName?.split(' ')[0] || 'Student'}</span>

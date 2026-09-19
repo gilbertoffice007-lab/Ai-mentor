@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { getCurrentSemester } from '../lib/semesterCalculator';
 import {
   DailyTask,
   ProjectItem,
@@ -423,6 +424,7 @@ export interface DailyLoginResult {
   stage: number;
   counted: boolean; // false when today was already counted
   leveledUp: boolean;
+  stageDropped: boolean; // true when the semester now unlocks fewer stages
 }
 
 /** Pure transition — same rules for cloud rows and local profiles. */
@@ -435,39 +437,51 @@ export function nextLoginState(
   const prevTotal = prev.totalLoginDays ?? 0;
   const prevStage = prev.currentStage ?? 1;
   if (last === today) {
-    return { streak: prevStreak, totalDays: prevTotal, stage: prevStage, counted: false, leveledUp: false };
+    return { streak: prevStreak, totalDays: prevTotal, stage: prevStage, counted: false, leveledUp: false, stageDropped: false };
   }
   const consecutive = last !== '' && daysBetweenDayStrings(last, today) === 1;
   const streak = consecutive ? prevStreak + 1 : 1;
   const totalDays = prevTotal + 1;
-  const stage = Math.max(prevStage, stageForActiveDays(totalDays));
-  return { streak, totalDays, stage, counted: true, leveledUp: stage > prevStage };
+  // Stage is semester-driven (set explicitly); logins must not raise it here.
+  return { streak, totalDays, stage: prevStage, counted: true, leveledUp: false, stageDropped: false };
 }
 
 /**
  * Record today's login for a Supabase user. Idempotent — calling twice
- * on the same day counts once. Returns the new values + level-up flag.
+ * on the same day counts once. Streak is login-driven; stage re-syncs
+ * from the academic calendar (exact, both directions), clamped to 6.
  */
 export async function recordDailyLogin(userId: string): Promise<DailyLoginResult> {
   const row = await fetchUserRow(userId);
   if (!row) throw new Error('no profile row');
+  const prevStage = row.current_stage ?? 1;
   const next = nextLoginState(
     {
       lastLoginDate: row.last_login_date || undefined,
       currentStreakDays: row.current_streak_days ?? 0,
       totalLoginDays: row.total_login_days ?? 0,
-      currentStage: row.current_stage ?? 1,
+      currentStage: prevStage,
     },
     loginDayString()
   );
   if (!next.counted) return next;
+  // Calendar re-sync: time passing unlocks semesters; moving dates back
+  // re-locks. No dates yet (pre-setup) → keep the stored stage.
+  let stage = prevStage;
+  if (row.course_start_date) {
+    const sem = getCurrentSemester(row.course_start_date, row.total_semesters || 8, row.course_duration_months || 6);
+    stage = Math.min(Math.max(1, sem.currentSemester || 1), 6);
+  }
+  next.stage = stage;
+  next.leveledUp = stage > prevStage;
+  next.stageDropped = stage < prevStage;
   const { error } = await supabase
     .from('profiles')
     .update({
       last_login_date: loginDayString(),
       current_streak_days: next.streak,
       total_login_days: next.totalDays,
-      current_stage: next.stage,
+      current_stage: stage,
       updated_at: new Date().toISOString(),
     })
     .eq('id', userId);
